@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "c:rods/wooden"
+    },
+    "B": {
+      "item": "minecraft:sculk"
+    }
+  },
+  "pattern": [
+    " BA",
+    " AB",
+    "A  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "hammers_galore:sculk_hammer"
+  }
+}

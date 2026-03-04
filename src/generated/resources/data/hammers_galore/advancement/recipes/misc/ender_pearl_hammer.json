@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ender_pearl_hammer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#c:ender_pearls"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "hammers_galore:ender_pearl_hammer"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ender_pearl_hammer"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "hammers_galore:ender_pearl_hammer"
+    ]
+  }
+}

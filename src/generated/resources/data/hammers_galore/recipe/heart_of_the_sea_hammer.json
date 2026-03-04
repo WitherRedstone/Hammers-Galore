@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "c:rods/wooden"
+    },
+    "B": {
+      "item": "minecraft:heart_of_the_sea"
+    }
+  },
+  "pattern": [
+    " BA",
+    " AB",
+    "A  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "hammers_galore:heart_of_the_sea_hammer"
+  }
+}
