@@ -75,6 +75,10 @@ public class ModItems {
     public static final DeferredItem<SculkHammer> SCULK_HAMMER = ITEMS_REGISTER.register("sculk_hammer",
             () -> new SculkHammer(ModToolTiers.SCULK_HAMMER,
                     PickaxeItems.createProperties(ModToolTiers.SCULK_HAMMER, 2.0f, -3.0f).rarity(Rarity.EPIC)));
+    // 绿宝石锤
+    public static final DeferredItem<EmeraldHammer> EMERALD_HAMMER = ITEMS_REGISTER.register("emerald_hammer",
+            () -> new EmeraldHammer(ModToolTiers.EMERALD_HAMMER,
+                    PickaxeItems.createProperties(ModToolTiers.EMERALD_HAMMER, 3.0f, -3.0f).rarity(Rarity.EPIC)));
 
 
     // 注册到游戏

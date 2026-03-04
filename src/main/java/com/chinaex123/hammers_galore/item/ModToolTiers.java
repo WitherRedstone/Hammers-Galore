@@ -47,7 +47,9 @@ public enum ModToolTiers implements Tier {
     // 玻璃锤
     GLASS_HAMMER(BlockTags.INCORRECT_FOR_IRON_TOOL, 1, 10F, 7.0F, 14, () -> Ingredient.of(Tags.Items.GLASS_BLOCKS)),
     // 幽匿锤
-    SCULK_HAMMER(BlockTags.INCORRECT_FOR_IRON_TOOL, 512, 6F, 5.0F, 14, () -> Ingredient.of(Items.SCULK));
+    SCULK_HAMMER(BlockTags.INCORRECT_FOR_IRON_TOOL, 512, 6F, 5.0F, 14, () -> Ingredient.of(Items.SCULK)),
+    // 绿宝石锤
+    EMERALD_HAMMER(BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 3096, 8F, 6.0F, 22, () -> Ingredient.of(Tags.Items.GEMS_EMERALD));
 
 
     private final TagKey<Block> incorrectBlocksForDrops;

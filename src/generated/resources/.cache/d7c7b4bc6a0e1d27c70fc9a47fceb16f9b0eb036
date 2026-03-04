@@ -1,7 +1,8 @@
-// 1.21.1	2026-03-04T09:48:24.672078	Item Models: hammers_galore
+// 1.21.1	2026-03-04T21:44:28.6251178	Item Models: hammers_galore
 5c4da64c893a2aab7b6cd91ad03152239f408e98 assets/hammers_galore/models/item/conduit_hammer.json
 c9e29c7070875ccb3e2d7b0ab66e5d62730502a4 assets/hammers_galore/models/item/copper_hammer.json
 2d65e8f1d696e4cff1aff966bcf77dc9617477b0 assets/hammers_galore/models/item/diamond_hammer.json
+cea08731f067995aa4cb239357af520a91b976de assets/hammers_galore/models/item/emerald_hammer.json
 20ad5f8b96642ed3c06b9b08f3a4c5c72ea64d81 assets/hammers_galore/models/item/ender_pearl_hammer.json
 043091f8d942d71f5150eb17404eeb0291aae154 assets/hammers_galore/models/item/glass_hammer.json
 2dc7de333366156dc9f94c4a4e9ec95cc959dbec assets/hammers_galore/models/item/gold_hammer.json

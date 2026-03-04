@@ -17,6 +17,7 @@
   "item.hammers_galore.piston_hammer": "Piston Hammer",
   "item.hammers_galore.glass_hammer": "Glass Hammer",
   "item.hammers_galore.sculk_hammer": "Sculk Hammer",
+  "item.hammers_galore.emerald_hammer": "Emerald Hammer",
 
   "tooltip.hammers_galore.mining_range.disabled": "§7Mining Range: Disabled",
   "tooltip.hammers_galore.mining_range.value": "§aMining Range: %sx%s",
@@ -42,5 +43,6 @@
   "tooltip.hammers_galore.magma.auto_smelt": "  Auto Smelting: Mined ores directly drop their smelted products.",
   "tooltip.hammers_galore.piston.knockback": "  Powerful Knockback: Knocks back entities %s blocks when attacking",
   "tooltip.hammers_galore.glass.low_durability": "  Low Durability & Extreme Damage: Only 1 durability point, use with caution!",
-  "tooltip.hammers_galore.sculk.xp_drop": "  XP Absorption: %s XP per item, ores ×%d"
+  "tooltip.hammers_galore.sculk.xp_drop": "  XP Absorption: %s XP per item, ores ×%d",
+  "tooltip.hammers_galore.emerald_hammer.chance": "  Chosen One: Lucky effect has a %s chance to trigger when digging or attacking."
 }

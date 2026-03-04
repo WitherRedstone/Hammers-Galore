@@ -44,6 +44,7 @@ public class ModCreativeTabs {
                         output.accept(ModItems.PISTON_HAMMER.get()); // 活塞锤
                         output.accept(ModItems.GLASS_HAMMER.get()); // 玻璃锤
                         output.accept(ModItems.SCULK_HAMMER.get()); // 幽匿锤
+                        output.accept(ModItems.EMERALD_HAMMER.get()); // 绿宝石锤
 
                     })
                     .build());

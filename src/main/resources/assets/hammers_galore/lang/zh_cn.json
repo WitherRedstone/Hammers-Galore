@@ -17,6 +17,7 @@
   "item.hammers_galore.piston_hammer": "活塞锤",
   "item.hammers_galore.glass_hammer": "玻璃锤",
   "item.hammers_galore.sculk_hammer": "幽匿锤",
+  "item.hammers_galore.emerald_hammer": "绿宝石锤",
 
   "tooltip.hammers_galore.mining_range.disabled": "§7挖掘范围：禁用",
   "tooltip.hammers_galore.mining_range.value": "§a挖掘范围：%sx%s",
@@ -42,5 +43,6 @@
   "tooltip.hammers_galore.magma.auto_smelt": "  自动烧炼：挖掘的矿物直接掉落烧炼后的产物",
   "tooltip.hammers_galore.piston.knockback": "  强力击退：攻击时将生物击退 %s 格",
   "tooltip.hammers_galore.glass.low_durability": "  低耐久但高攻击：仅 1 点耐久，使用需谨慎！",
-  "tooltip.hammers_galore.sculk.xp_drop": "  经验吸收：每物品 %s XP，矿石 ×%d 倍"
+  "tooltip.hammers_galore.sculk.xp_drop": "  经验吸收：每物品 %s XP，矿石 ×%d 倍",
+  "tooltip.hammers_galore.emerald_hammer.chance": "  天选之子：挖掘和攻击时有 %s 几率触发幸运效果"
 }

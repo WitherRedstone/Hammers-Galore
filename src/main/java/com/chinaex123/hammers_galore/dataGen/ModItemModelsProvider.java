@@ -33,5 +33,6 @@ public class ModItemModelsProvider extends ItemModelProvider {
         basicItem(ModItems.PISTON_HAMMER.get()); // 活塞锤
         basicItem(ModItems.GLASS_HAMMER.get()); // 玻璃锤
         basicItem(ModItems.SCULK_HAMMER.get()); // 幽匿锤
+        basicItem(ModItems.EMERALD_HAMMER.get()); // 绿宝石锤
     }
 }

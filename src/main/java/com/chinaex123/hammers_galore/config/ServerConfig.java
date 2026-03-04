@@ -29,6 +29,8 @@ public class ServerConfig {
     public static final ModConfigSpec.IntValue SCULK_BASE_XP_MIN;
     public static final ModConfigSpec.IntValue SCULK_BASE_XP_MAX;
     public static final ModConfigSpec.IntValue SCULK_ORE_XP_MULTIPLIER;
+    // 绿宝石特殊配置
+    public static final ModConfigSpec.DoubleValue EMERALD_HAMMER_BASE_TRIGGER_CHANCE;
 
     private static ModConfigSpec spec;
 
@@ -40,18 +42,17 @@ public class ServerConfig {
     private static double cachedNetherStarSpeedBonus;
     private static double cachedNetherStarThresholdLow;
     private static double cachedNetherStarThresholdHigh;
-
     // 缓存的潮涌之锤配置
     private static int cachedConduitDuration;
     private static int cachedConduitAmplifier;
-
     // 缓存的活塞锤配置
     private static double cachedPistonKnockback;
-
     // 缓存的幽匿锤配置
     private static int cachedSculkBaseXPMin;
     private static int cachedSculkBaseXPMax;
     private static int cachedSculkOreXPMultiplier;
+    // 缓存的绿宝石锤配置
+    private static double cachedEmeraldHammerBaseTriggerChance;
 
     // 静态类存储单个锤子的通用配置
     private static class HammerConfig {
@@ -109,6 +110,7 @@ public class ServerConfig {
         registerHammerInternal("piston_hammer");
         registerHammerInternal("glass_hammer");
         registerHammerInternal("sculk_hammer");
+        registerHammerInternal("emerald_hammer");
 
         // 下界之星锤特殊配置
         BUILDER.push("特殊锤子功能配置");
@@ -169,6 +171,16 @@ public class ServerConfig {
                         "幽匿锤矿石方块的经验倍数（默认：2）")
                 .defineInRange("sculk_ore_xp_multiplier", 2, 1, 10);
         BUILDER.pop();
+
+        // 绿宝石锤配置
+        BUILDER.push("[Features]emerald_hammer");
+        EMERALD_HAMMER_BASE_TRIGGER_CHANCE = BUILDER
+                .comment("Emerald hammer base trigger chance for luck effect (default: 0.2 = 20%).",
+                        "绿宝石锤触发幸运效果的基础概率（默认：0.2 = 20%）。",
+                        "实际触发概率 = 基础概率 + 耐久度比例 * (1 - 基础概率)",
+                        "耐久度越低，触发概率越高")
+                .defineInRange("base_trigger_chance", 0.25, 0.0, 1.0);
+        BUILDER.pop();
         
         
         
@@ -178,73 +190,100 @@ public class ServerConfig {
     }
 
     /**
-     * 注册新的锤子到配置系统（在物品注册时调用）
-     * @param hammerName 锤子名称（如 "nether_star_hammer"）
+     * 内部方法：注册单个锤子的配置到配置系统中
+     *
+     * @param hammerName 锤子的注册名称（如 "wood_hammer", "nether_star_hammer" 等）
      */
-    public static void registerHammer(String hammerName) {
-        if (!hammerConfigs.containsKey(hammerName)) {
-            registerHammerInternal(hammerName);
-        }
-    }
-
     private static void registerHammerInternal(String hammerName) {
+        // 将配置构建器推入当前锤子的配置节点
         BUILDER.push(hammerName);
+        // 创建新的锤子配置对象并存入 Map 中
         hammerConfigs.put(hammerName, new HammerConfig(hammerName));
+        // 弹出配置节点，返回到上一级
         BUILDER.pop();
     }
 
     /**
-     * 根据工具等级获取挖掘半径
+     * 根据锤子名称获取挖掘半径
+     *
+     * @param tierName 锤子的注册名称（如 "wood_hammer", "diamond_hammer" 等）
+     * @return 挖掘半径值。如果配置中范围 ≤ 1 则返回 0（禁用范围挖掘），否则返回 (范围 -1)/2；
+     *         如果未找到对应锤子配置，则返回默认值 3
      */
     public static int getMiningRadius(String tierName) {
+        // 从配置 Map 中获取对应锤子的配置对象
         HammerConfig config = hammerConfigs.get(tierName);
         if (config != null) {
+            // 获取缓存的挖掘范围值
             int range = config.cachedRange;
+            // 如果范围 ≤ 1，表示禁用范围挖掘，返回半径 0
             if (range <= 1) return 0;
+            // 将范围转换为半径：3x3→1, 5x5→2, 7x7→3, 9x9→4
             return (range - 1) / 2;
         }
         return 3;
     }
 
     /**
-     * 根据工具等级获取挖掘范围大小
+     * 根据锤子名称获取挖掘范围大小
+     *
+     * @param tierName 锤子的注册名称（如 "wood_hammer", "diamond_hammer" 等）
+     * @return 挖掘范围值（3、5、7、9 等），表示挖掘区域为该值 x 该值的正方形；
+     *         如果未找到对应锤子配置，则返回默认值 3
      */
     public static int getMiningRange(String tierName) {
+        // 从配置 Map 中获取对应锤子的配置对象
         HammerConfig config = hammerConfigs.get(tierName);
         if (config != null) {
+            // 返回缓存的挖掘范围值
             return config.cachedRange;
         }
         return 3;
     }
 
     /**
-     * 根据工具等级获取耐久消耗
+     * 根据锤子名称获取耐久消耗值
+     *
+     * @param tierName 锤子的注册名称（如 "wood_hammer", "diamond_hammer" 等）
+     * @return 每个额外方块消耗的耐久值；如果未找到对应锤子配置，则返回默认值 1
      */
     public static int getDurabilityCost(String tierName) {
+        // 从配置 Map 中获取对应锤子的配置对象
         HammerConfig config = hammerConfigs.get(tierName);
         if (config != null) {
+            // 返回缓存的耐久消耗值
             return config.cachedDurabilityCost;
         }
         return 1;
     }
 
     /**
-     * 根据工具等级检查是否需要潜行
+     * 根据锤子名称检查是否需要潜行才能进行范围挖掘
+     *
+     * @param tierName 锤子的注册名称（如 "wood_hammer", "diamond_hammer" 等）
+     * @return 如果需要潜行则返回 true，否则返回 false；如果未找到对应锤子配置，则返回默认值 true
      */
     public static boolean requireSneak(String tierName) {
+        // 从配置 Map 中获取对应锤子的配置对象
         HammerConfig config = hammerConfigs.get(tierName);
         if (config != null) {
+            // 返回缓存的潜行要求值
             return config.cachedRequireSneak;
         }
         return true;
     }
 
     /**
-     * 根据工具等级检查是否启用饱食度消耗
+     * 根据锤子名称检查是否启用饱食度消耗
+     *
+     * @param tierName 锤子的注册名称（如 "wood_hammer", "diamond_hammer" 等）
+     * @return 如果启用饱食度消耗则返回 true，否则返回 false；如果未找到对应锤子配置，则返回默认值 false
      */
     public static boolean enableHungerCost(String tierName) {
+        // 从配置 Map 中获取对应锤子的配置对象
         HammerConfig config = hammerConfigs.get(tierName);
         if (config != null) {
+            // 返回缓存的饱食度消耗启用状态
             return config.cachedEnableHungerCost;
         }
         return false;
@@ -320,7 +359,24 @@ public class ServerConfig {
         return cachedSculkOreXPMultiplier;
     }
 
+    /**
+     * 获取绿宝石锤的基础触发概率
+     *
+     * @return 基础触发概率（0.0-1.0）
+     */
+    public static double getEmeraldHammerBaseTriggerChance() {
+        return cachedEmeraldHammerBaseTriggerChance;
+    }
+
+    /**
+     * 验证挖掘范围值是否有效
+     * 有效的范围为：1（禁用）或 3-9 之间的奇数（3x3, 5x5, 7x7, 9x9）
+     *
+     * @param value 要验证的挖掘范围值
+     * @return 如果值有效返回 true，否则返回 false
+     */
     public static boolean isValidRange(int value) {
+        // 检查是否为 1（禁用）或 3-9 之间的奇数
         return value == 1 || (value >= 3 && value <= 9 && value % 2 == 1);
     }
 
@@ -335,7 +391,12 @@ public class ServerConfig {
     }
 
 
+    /**
+     * 更新所有锤子配置的缓存值
+     * 在配置加载或重新加载时调用，以提高运行时性能
+     */
     private static void updateCache() {
+        // 遍历所有锤子配置对象，更新其缓存值
         for (HammerConfig config : hammerConfigs.values()) {
             // 从配置对象读取实际值
             config.cachedRange = config.miningRange.get();
@@ -344,22 +405,22 @@ public class ServerConfig {
             config.cachedEnableHungerCost = config.enableHungerCost.get();
         }
 
+        // 更新下界之星锤的配置缓存
         cachedNetherStarAttackBonus = NETHER_STAR_MAX_ATTACK_BONUS.get();
         cachedNetherStarSpeedBonus = NETHER_STAR_MAX_SPEED_BONUS.get();
         cachedNetherStarThresholdLow = NETHER_STAR_TRIGGER_THRESHOLD_LOW.get();
         cachedNetherStarThresholdHigh = NETHER_STAR_TRIGGER_THRESHOLD_HIGH.get();
-
         // 更新潮涌之锤配置
         cachedConduitDuration = CONDUIT_EFFECT_DURATION.get();
         cachedConduitAmplifier = CONDUIT_EFFECT_AMPLIFIER.get();
-
         // 更新活塞锤配置
         cachedPistonKnockback = PISTON_KNOCKBACK_STRENGTH.get();
-
         // 更新幽匿锤配置
         cachedSculkBaseXPMin = SCULK_BASE_XP_MIN.get();
         cachedSculkBaseXPMax = SCULK_BASE_XP_MAX.get();
         cachedSculkOreXPMultiplier = SCULK_ORE_XP_MULTIPLIER.get();
+        // 更新绿宝石锤配置
+        cachedEmeraldHammerBaseTriggerChance = EMERALD_HAMMER_BASE_TRIGGER_CHANCE.get();
     }
 
     public static ModConfigSpec getSpec() {

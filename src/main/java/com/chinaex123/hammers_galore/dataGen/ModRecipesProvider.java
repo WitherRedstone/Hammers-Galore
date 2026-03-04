@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -173,6 +172,16 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .define('A', Tags.Items.RODS_WOODEN)
                 .define('B', Items.SCULK)
                 .unlockedBy("has_sculk_hammer", has(Items.SCULK))
+                .save(recipeOutput);
+        // 绿宝石锤
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
+                        ModItems.EMERALD_HAMMER.get())
+                .pattern(" BA")
+                .pattern(" AB")
+                .pattern("A  ")
+                .define('A', Tags.Items.RODS_WOODEN)
+                .define('B', Tags.Items.GEMS_EMERALD)
+                .unlockedBy("has_emerald_hammer", has(Tags.Items.GEMS_EMERALD))
                 .save(recipeOutput);
     }
 }

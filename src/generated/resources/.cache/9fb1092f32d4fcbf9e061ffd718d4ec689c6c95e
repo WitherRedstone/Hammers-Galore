@@ -1,7 +1,8 @@
-// 1.21.1	2026-03-04T18:21:44.3916792	Recipes
+// 1.21.1	2026-03-04T21:44:28.6271156	Recipes
 3e43800c9181d301caa23a988525dfb9fb304c68 data/hammers_galore/advancement/recipes/misc/conduit_hammer.json
 5ee52993655e7e5460f0b4a4d9d2f0bf2654b731 data/hammers_galore/advancement/recipes/misc/copper_hammer.json
 11fd5da6a8b972782e1d54f5749d25a9d954bea7 data/hammers_galore/advancement/recipes/misc/diamond_hammer.json
+93e0428ff8dae1fbee3fceebc9898653d721a1e1 data/hammers_galore/advancement/recipes/misc/emerald_hammer.json
 fe11a2325d0a90837bfcd4d039d565e21106644e data/hammers_galore/advancement/recipes/misc/ender_pearl_hammer.json
 0c83d5baa09816df830c273b20b6ed96f4ac14c8 data/hammers_galore/advancement/recipes/misc/glass_hammer.json
 76073bfc22fee85e50e4a31a76706888638ef877 data/hammers_galore/advancement/recipes/misc/gold_hammer.json
@@ -17,6 +18,7 @@ e40fa1f8e989b6cd2cc5dea84c09476c982e4155 data/hammers_galore/advancement/recipes
 ba720d3e6699f6bd990843617d5cd03b205987ad data/hammers_galore/recipe/conduit_hammer.json
 7218a3eef523c5fef4239deef2c75cbcf92c0755 data/hammers_galore/recipe/copper_hammer.json
 d9ee74eddb636ffb1bead5a65fbb165797c4f895 data/hammers_galore/recipe/diamond_hammer.json
+6ac1de0dcbcd68d38cc2e2a6dd78c58c1e5834b9 data/hammers_galore/recipe/emerald_hammer.json
 c0cd626357cce1ce7b75c25aa61e8f860e1c5e7b data/hammers_galore/recipe/ender_pearl_hammer.json
 98175977d456fbc57a7bec5b35d85bd15bc720ea data/hammers_galore/recipe/glass_hammer.json
 6f342be21d3789e375a45a3679d2c02d61488997 data/hammers_galore/recipe/gold_hammer.json

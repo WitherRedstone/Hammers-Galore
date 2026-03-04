@@ -14,8 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PickaxeItems extends PickaxeItem {
@@ -24,29 +24,61 @@ public class PickaxeItems extends PickaxeItem {
         super(tier, properties);
     }
 
+    /**
+     * 创建锤子物品的属性配置
+     *
+     * @param tier 工具等级（决定挖掘速度和耐久度）
+     * @param attackDamage 基础攻击力值
+     * @param attackSpeed 攻击速度值
+     * @return 配置好属性的 Properties 对象
+     */
     public static Properties createProperties(Tier tier, float attackDamage, float attackSpeed) {
+        // 设置物品属性，包括攻击力和攻击速度
         return new Properties()
                 .attributes(PickaxeItem.createAttributes(tier, attackDamage, attackSpeed));
     }
 
+    /**
+     * 重写方块挖掘方法，实现锤子的范围挖掘功能
+     * 根据玩家视角自动调整挖掘平面方向
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 当前世界等级
+     * @param state 被挖掘方块的状态
+     * @param pos 被挖掘方块的位置
+     * @param entity 进行挖掘的生物实体
+     * @return 如果挖掘成功返回 true，否则返回 false
+     */
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
-        // 获取工具等级名称
-        String tierName = getTierNameFromStack(stack);
+    public boolean mineBlock(@NotNull ItemStack stack, Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull LivingEntity entity) {
+        // 获取工具等级名称（使用工具类）
+        String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否需要潜行（根据当前锤子的配置）
         boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
 
+        // 只在服务端且满足条件时触发范围挖掘
         if (!level.isClientSide && shouldMineArea) {
-            // 只在服务端且满足条件时触发范围挖掘
             mineArea(stack, (ServerLevel) level, state, pos, entity, tierName);
         }
+
+        // 调用父类的挖掘方法处理基础逻辑
         return super.mineBlock(stack, level, state, pos, entity);
     }
 
+    /**
+     * 在指定区域内进行范围挖掘，根据玩家视角自动调整挖掘平面
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 服务端世界等级
+     * @param centerState 中心方块的方块状态
+     * @param centerPos 中心方块的位置坐标
+     * @param entity 进行挖掘的生物实体
+     * @param tierName 锤子的注册名称（用于获取配置）
+     */
     private void mineArea(ItemStack stack, ServerLevel level, BlockState centerState, BlockPos centerPos, LivingEntity entity, String tierName) {
-        // 获取玩家面向方向
-        Direction direction = entity.getDirection();
+        // 根据玩家视角计算挖掘方向（使用工具类）
+        Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘范围 - 根据工具等级
         int radius = ServerConfig.getMiningRadius(tierName);
@@ -60,20 +92,22 @@ public class PickaxeItems extends PickaxeItem {
         // 检查是否启用饱食度消耗
         boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
 
-        // 计算挖掘区域的偏移量
-        List<BlockPos> areaPositions = getAreaPositions(centerPos, direction, radius);
+        // 计算挖掘区域的偏移量（使用工具类）
+        List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);
 
         // 统计实际挖掘的方块数量（用于计算饱食度消耗）
         int blocksMined = 0;
 
+        // 遍历挖掘区域内的所有位置
         for (BlockPos pos : areaPositions) {
             // 跳过中心方块（已经由原方法处理）
             if (pos.equals(centerPos)) continue;
 
+            // 获取目标位置的方块状态
             BlockState targetState = level.getBlockState(pos);
 
-            // 检查是否可以挖掘（防止破坏不可破坏的方块）
-            if (!canHammerMine(targetState)) continue;
+            // 检查是否可以挖掘（防止破坏不可破坏的方块）（使用工具类）
+            if (!HammerMiningHelper.canHammerMine(targetState)) continue;
 
             // 检查工具耐久
             if (stack.getDamageValue() >= stack.getMaxDamage() - durabilityCost) continue;
@@ -81,98 +115,50 @@ public class PickaxeItems extends PickaxeItem {
             // 检查挖掘等级
             if (!isCorrectToolForDrops(stack, targetState)) continue;
 
-            // 获取掉落物
+            // 获取方块的掉落物
             List<ItemStack> drops = Block.getDrops(targetState, level, pos, level.getBlockEntity(pos), entity, stack);
 
             // 移除原方块
             level.destroyBlock(pos, false, entity);
 
-            // 掉落物品（每个方块正常掉落战利品表的数量）
+            // 生成掉落物品实体
             for (ItemStack drop : drops) {
-                // 直接掉落，不乘以倍数
                 ItemEntity itemEntity = new ItemEntity(level,
                         pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
                         drop.copy());
                 level.addFreshEntity(itemEntity);
             }
 
-            // 消耗耐久（根据配置的耐久消耗）
+            // 消耗工具耐久
             stack.hurtAndBreak(durabilityCost, entity,
                     LivingEntity.getSlotForHand(entity.getUsedItemHand()));
 
-            // 计数挖掘的方块
+            // 增加已挖掘方块计数
             blocksMined++;
         }
 
-        // 如果启用了饱食度消耗，并且挖掘了方块
+        // 如果启用了饱食度消耗且挖掘了方块，对玩家造成饥饿消耗
         if (enableHungerCost && blocksMined > 0 && entity instanceof Player player) {
-            // 每挖掘一个额外方块消耗 0.5 点饥饿值
             player.causeFoodExhaustion(blocksMined * 0.5f);
         }
     }
 
     /**
-     * 从 ItemStack 获取工具等级名称
+     * 检查锤子是否能从指定方块获取掉落物
+     * 允许挖掘沙子、沙砾、混凝土粉末等受重力影响的方块
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param state 要检查的方块状态
+     * @return 如果锤子能从此方块获取掉落物返回 true，否则返回 false
      */
-    private String getTierNameFromStack(ItemStack stack) {
-        return stack.getItem().getDescriptionId()
-                .replace("item.hammers_galore.", "");
-    }
-
-    private List<BlockPos> getAreaPositions(BlockPos center, Direction facing, int radius) {
-        List<BlockPos> positions = new ArrayList<>();
-
-        // 根据面向方向确定挖掘平面的两个轴
-        Direction.Axis axis1, axis2;
-
-        if (facing.getAxis() == Direction.Axis.Y) {
-            // 如果面向上下，使用 X 和 Z 轴
-            axis1 = Direction.Axis.X;
-            axis2 = Direction.Axis.Z;
-        } else {
-            // 如果面向水平方向，使用垂直方向和另一个水平方向
-            axis1 = Direction.UP.getAxis(); // Y 轴
-            axis2 = facing.getClockWise().getAxis(); // 侧向轴
-        }
-
-        // 生成范围区域
-        for (int i = -radius; i <= radius; i++) {
-            for (int j = -radius; j <= radius; j++) {
-                BlockPos offset = center;
-
-                // 根据轴向应用偏移
-                if (axis1 == Direction.Axis.X) offset = offset.offset(i, 0, 0);
-                else if (axis1 == Direction.Axis.Y) offset = offset.offset(0, i, 0);
-                else if (axis1 == Direction.Axis.Z) offset = offset.offset(0, 0, i);
-
-                if (axis2 == Direction.Axis.X) offset = offset.offset(j, 0, 0);
-                else if (axis2 == Direction.Axis.Y) offset = offset.offset(0, j, 0);
-                else if (axis2 == Direction.Axis.Z) offset = offset.offset(0, 0, j);
-
-                positions.add(offset);
-            }
-        }
-
-        return positions;
-    }
-
-    private boolean canHammerMine(BlockState state) {
-        // 检查方块是否可以被锤子挖掘
-        // 防止破坏基岩、命令方块等
-        // 但允许挖掘沙子、沙砾等受重力影响的方块
-        if (state.is(Tags.Blocks.RELOCATION_NOT_SUPPORTED)) {
-            return false;
-        }
-        return !state.is(Tags.Blocks.ENDERMAN_PLACE_ON_BLACKLIST);
-    }
-
     @Override
-    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
-        // 这样包括沙子、沙砾、混凝土粉末等受重力影响的方块
+    public boolean isCorrectToolForDrops(@NotNull ItemStack stack, BlockState state) {
+        // 检查方块是否不可移动（如基岩、命令方块等）
         if (state.is(Tags.Blocks.RELOCATION_NOT_SUPPORTED)) {
             return false;
         }
+
+        // 检查方块是否在末影人黑名单中
         return !state.is(Tags.Blocks.ENDERMAN_PLACE_ON_BLACKLIST);
-        // 允许挖掘所有其他方块
     }
 }

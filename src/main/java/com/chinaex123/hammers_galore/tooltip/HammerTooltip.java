@@ -178,6 +178,20 @@ public class HammerTooltip {
                             xpRange, oreMultiplier)
                     .withStyle(ChatFormatting.AQUA));
         }
+
+        // 绿宝石特殊提示
+        if ("emerald_hammer".equals(itemName)) {
+            tooltip.add(Component.literal(""));
+            tooltip.add(Component.translatable("tooltip.hammers_galore.specialhammers.bonus")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+
+            double luckChance = ServerConfig.getEmeraldHammerBaseTriggerChance();
+            String percentChance = String.format("%.1f%%", luckChance * 100);
+
+            tooltip.add(Component.translatable("tooltip.hammers_galore.emerald_hammer.chance",
+                            percentChance)
+                    .withStyle(ChatFormatting.AQUA));
+        }
     }
 
     /**

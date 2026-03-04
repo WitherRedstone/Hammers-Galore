@@ -1,6 +1,7 @@
 package com.chinaex123.hammers_galore.server.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.server.HammerMiningHelper;
 import com.chinaex123.hammers_galore.server.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,8 +16,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SculkHammer extends PickaxeItems {
@@ -25,31 +26,51 @@ public class SculkHammer extends PickaxeItems {
         super(tier, properties);
     }
 
+    /**
+     * 重写方块的挖掘方法，实现幽匿锤的范围挖掘并将方块转换为经验的功能
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 当前世界等级
+     * @param state 被挖掘方块的状态
+     * @param pos 被挖掘方块的位置
+     * @param entity 进行挖掘的生物实体
+     * @return 如果挖掘成功返回 true，否则返回 false
+     */
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
-        String tierName = getTierNameFromStack(stack);
+    public boolean mineBlock(@NotNull ItemStack stack, Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull LivingEntity entity) {
+        // 从物品堆栈获取锤子名称（使用工具类）
+        String tierName = HammerMiningHelper.getTierNameFromStack(stack);
+
+        // 检查是否应该进行范围挖掘：不需要潜行或者玩家正在潜行
         boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
 
+        // 仅在服务端且满足条件时执行范围挖掘（包括中心方块）
         if (!level.isClientSide && shouldMineArea) {
-            // 处理范围挖掘（包括中心方块）
             mineArea(stack, (ServerLevel) level, state, pos, entity, tierName);
         } else {
-            // 如果不需要潜行或没有潜行，只挖掘中心方块
+            // 如果需要潜行但玩家没有潜行，只挖掘中心方块
             if (!shouldMineArea) {
                 mineSingleBlock(stack, level, state, pos, entity);
             }
         }
 
+        // 挖掘成功
         return true;
     }
 
     /**
-     * 挖掘单个方块
+     * 挖掘单个方块并将其转换为经验球
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 当前世界等级
+     * @param state 被挖掘方块的状态
+     * @param pos 被挖掘方块的位置
+     * @param entity 进行挖掘的生物实体
      */
     private void mineSingleBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
         if (entity instanceof Player player) {
-            // 检查是否可以挖掘
-            if (!canHammerMine(state)) return;
+            // 检查是否可以挖掘（使用工具类）
+            if (!HammerMiningHelper.canHammerMine(state)) return;
             if (!isCorrectToolForDrops(stack, state)) return;
 
             // 获取掉落物并计算经验
@@ -70,30 +91,54 @@ public class SculkHammer extends PickaxeItems {
         }
     }
 
+    /**
+     * 在指定区域内进行范围挖掘，并将所有挖掘的方块转换为经验球
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 服务端世界等级
+     * @param centerState 中心方块的方块状态
+     * @param centerPos 中心方块的位置坐标
+     * @param entity 进行挖掘的生物实体
+     * @param tierName 锤子的注册名称（用于获取配置）
+     */
     private void mineArea(ItemStack stack, ServerLevel level, BlockState centerState, BlockPos centerPos, LivingEntity entity, String tierName) {
+        // 获取玩家面向方向
         Direction direction = entity.getDirection();
+
+        // 从配置获取挖掘半径
         int radius = ServerConfig.getMiningRadius(tierName);
 
+        // 如果半径为 0 或负数，表示禁用范围挖掘，直接返回
         if (radius <= 0) return;
 
+        // 从配置获取耐久消耗和饱食度消耗设置
         int durabilityCost = ServerConfig.getDurabilityCost(tierName);
         boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
 
-        List<BlockPos> areaPositions = getAreaPositions(centerPos, direction, radius);
+        // 计算挖掘区域内的所有方块位置（使用工具类）
+        List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);
+
+        // 统计实际挖掘的方块数量（用于计算饱食度消耗）
         int blocksMined = 0;
+
+        // 累计总经验值
         int totalXP = 0;
 
+        // 遍历挖掘区域内的所有位置
         for (BlockPos pos : areaPositions) {
-            // 不再跳过中心方块，一起处理
+            // 获取目标位置的方块状态（包括中心方块一起处理）
             BlockState targetState = level.getBlockState(pos);
 
-            if (!canHammerMine(targetState)) continue;
+            // 检查锤子是否可以挖掘此方块（使用工具类）
+            if (!HammerMiningHelper.canHammerMine(targetState)) continue;
 
+            // 检查工具耐久是否足够
             if (stack.getDamageValue() >= stack.getMaxDamage() - durabilityCost) continue;
 
+            // 检查锤子是否能从此方块获取掉落物
             if (!isCorrectToolForDrops(stack, targetState)) continue;
 
-            // 获取掉落物并计算经验
+            // 获取方块的掉落物并计算经验
             List<ItemStack> drops = Block.getDrops(targetState, level, pos, level.getBlockEntity(pos), entity, stack);
 
             // 移除原方块（不生成掉落实体）
@@ -102,10 +147,11 @@ public class SculkHammer extends PickaxeItems {
             // 累加经验值
             totalXP += calculateXPFromDrops(drops, targetState);
 
-            // 消耗耐久
+            // 消耗工具耐久
             stack.hurtAndBreak(durabilityCost, entity,
                     LivingEntity.getSlotForHand(entity.getUsedItemHand()));
 
+            // 增加已挖掘方块计数
             blocksMined++;
         }
 
@@ -114,14 +160,18 @@ public class SculkHammer extends PickaxeItems {
             spawnExperienceOrb(level, centerPos, totalXP);
         }
 
-        // 饱食度消耗
+        // 如果启用了饱食度消耗且挖掘了方块，对玩家造成饥饿消耗
         if (enableHungerCost && blocksMined > 0 && entity instanceof Player player) {
             player.causeFoodExhaustion(blocksMined * 0.5f);
         }
     }
 
     /**
-     * 根据掉落物计算经验值
+     * 根据掉落物计算应获得的经验值总量
+     *
+     * @param drops 方块被挖掘后的掉落物列表
+     * @param state 被挖掘方块的方块状态（用于判断是否为矿石）
+     * @return 计算得出的总经验值
      */
     private int calculateXPFromDrops(List<ItemStack> drops, BlockState state) {
         int totalXP = 0;
@@ -145,8 +195,7 @@ public class SculkHammer extends PickaxeItems {
         }
 
         // 如果是矿石类方块，给予更多经验（可配置倍数，默认 2 倍）
-        String blockName = state.getBlock().getDescriptionId();
-        if (blockName.contains("ore")) {
+        if (state.is(Tags.Blocks.ORES)) {
             totalXP *= ServerConfig.getSculkOreXPMultiplier();
         }
 
@@ -154,7 +203,11 @@ public class SculkHammer extends PickaxeItems {
     }
 
     /**
-     * 在指定位置生成经验球
+     * 在指定位置生成经验球实体
+     *
+     * @param level 当前世界等级
+     * @param pos 生成经验球的方块位置
+     * @param xp 要生成的总经验值
      */
     private void spawnExperienceOrb(Level level, BlockPos pos, int xp) {
         if (xp <= 0) return;
@@ -171,47 +224,5 @@ public class SculkHammer extends PickaxeItems {
             ExperienceOrb.award((ServerLevel) level, new Vec3(x, y, z), orbXp);
             xp -= orbXp;
         }
-    }
-
-    private String getTierNameFromStack(ItemStack stack) {
-        return stack.getItem().getDescriptionId()
-                .replace("item.hammers_galore.", "");
-    }
-
-    private List<BlockPos> getAreaPositions(BlockPos center, Direction facing, int radius) {
-        List<BlockPos> positions = new ArrayList<>();
-
-        Direction.Axis axis1, axis2;
-
-        if (facing.getAxis() == Direction.Axis.Y) {
-            axis1 = Direction.Axis.X;
-            axis2 = Direction.Axis.Z;
-        } else {
-            axis1 = Direction.UP.getAxis();
-            axis2 = facing.getClockWise().getAxis();
-        }
-
-        for (int i = -radius; i <= radius; i++) {
-            for (int j = -radius; j <= radius; j++) {
-                BlockPos offset = center;
-
-                if (axis1 == Direction.Axis.X) offset = offset.offset(i, 0, 0);
-                else if (axis1 == Direction.Axis.Y) offset = offset.offset(0, i, 0);
-                else if (axis1 == Direction.Axis.Z) offset = offset.offset(0, 0, i);
-
-                if (axis2 == Direction.Axis.X) offset = offset.offset(j, 0, 0);
-                else if (axis2 == Direction.Axis.Y) offset = offset.offset(0, j, 0);
-                else if (axis2 == Direction.Axis.Z) offset = offset.offset(0, 0, j);
-
-                positions.add(offset);
-            }
-        }
-
-        return positions;
-    }
-
-    private boolean canHammerMine(BlockState state) {
-        return !state.is(Tags.Blocks.RELOCATION_NOT_SUPPORTED) &&
-                !state.is(Tags.Blocks.ENDERMAN_PLACE_ON_BLACKLIST);
     }
 }

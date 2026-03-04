@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class NetherStarHammer extends PickaxeItems {
 
@@ -41,33 +42,54 @@ public class NetherStarHammer extends PickaxeItems {
      * 静态方法，用于从事件处理器中移除增益
      */
     public static void removeBonusStatic(LivingEntity entity) {
-        AttributeInstance attackAttr = entity.getAttribute(Attributes.ATTACK_DAMAGE);
-        if (attackAttr != null && attackAttr.hasModifier(ATTACK_MODIFIER_ID)) {
-            attackAttr.removeModifier(ATTACK_MODIFIER_ID);
-        }
-
-        AttributeInstance speedAttr = entity.getAttribute(Attributes.BLOCK_BREAK_SPEED);
-        if (speedAttr != null && speedAttr.hasModifier(SPEED_MODIFIER_ID)) {
-            speedAttr.removeModifier(SPEED_MODIFIER_ID);
-        }
+        removeBonus(entity);
     }
 
+    /**
+     * 重写方块挖掘方法，在挖掘时更新增益效果
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 当前世界等级
+     * @param state 被挖掘方块的状态
+     * @param pos 被挖掘方块的位置
+     * @param entity 进行挖掘的生物实体
+     * @return 如果挖掘成功返回 true，否则返回 false
+     */
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
+    public boolean mineBlock(@NotNull ItemStack stack, Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull LivingEntity entity) {
+        // 更新挖掘者的增益效果
         updateBonus(stack, entity);
+
+        // 调用父类的挖掘方法处理基础逻辑
         return super.mineBlock(stack, level, state, pos, entity);
     }
 
+    /**
+     * 重写攻击敌人方法，在攻击时更新增益效果
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param target 被攻击的目标生物实体
+     * @param attacker 发起攻击的生物实体
+     * @return 如果攻击成功返回 true，否则返回 false
+     */
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        // 更新攻击者的增益效果
         updateBonus(stack, attacker);
+
+        // 调用父类的攻击方法处理基础逻辑
         return super.hurtEnemy(stack, target, attacker);
     }
 
     /**
-     * 根据当前耐久度动态计算并应用增益
+     * 根据工具当前耐久度动态计算并应用增益效果
+     * 耐久度越低，增益效果越强
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param entity 进行挖掘或攻击的生物实体
      */
     private void updateBonus(ItemStack stack, LivingEntity entity) {
+        // 计算当前耐久度比例（已损失耐久 / 最大耐久）
         float durabilityRatio = (float) stack.getDamageValue() / (float) stack.getMaxDamage();
 
         // 从配置获取阈值
@@ -91,13 +113,19 @@ public class NetherStarHammer extends PickaxeItems {
         float attackBonus = maxAttackBonus * (float)bonusMultiplier;
         float speedBonus = maxSpeedBonus * (float)bonusMultiplier;
 
+        // 应用计算好的增益效果
         applyBonus(entity, attackBonus, speedBonus);
     }
 
     /**
-     * 应用增益效果
+     * 为生物实体应用攻击力和挖掘速度增益效果
+     *
+     * @param entity 要应用增益的生物实体
+     * @param attackBonus 攻击力加成值
+     * @param speedBonus 挖掘速度加成值
      */
     private void applyBonus(LivingEntity entity, float attackBonus, float speedBonus) {
+        // 应用攻击力加成
         AttributeInstance attackAttr = entity.getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackAttr != null) {
             // 先移除旧的修改器
@@ -113,6 +141,7 @@ public class NetherStarHammer extends PickaxeItems {
             }
         }
 
+        // 应用挖掘速度加成
         AttributeInstance speedAttr = entity.getAttribute(Attributes.BLOCK_BREAK_SPEED);
         if (speedAttr != null) {
             // 先移除旧的修改器
@@ -130,14 +159,18 @@ public class NetherStarHammer extends PickaxeItems {
     }
 
     /**
-     * 移除增益效果
+     * 移除下界之星锤的攻击力和挖掘速度增益效果
+     *
+     * @param entity 需要移除增益效果的生物实体
      */
-    private void removeBonus(LivingEntity entity) {
+    private static void removeBonus(LivingEntity entity) {
+        // 移除攻击力加成
         AttributeInstance attackAttr = entity.getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackAttr != null && attackAttr.hasModifier(ATTACK_MODIFIER_ID)) {
             attackAttr.removeModifier(ATTACK_MODIFIER_ID);
         }
 
+        // 移除挖掘速度加成
         AttributeInstance speedAttr = entity.getAttribute(Attributes.BLOCK_BREAK_SPEED);
         if (speedAttr != null && speedAttr.hasModifier(SPEED_MODIFIER_ID)) {
             speedAttr.removeModifier(SPEED_MODIFIER_ID);
