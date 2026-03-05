@@ -16,6 +16,7 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Random;
@@ -39,7 +40,7 @@ public class EmeraldHammer extends PickaxeItems {
      * @return 如果挖掘成功返回 true，否则返回 false
      */
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
+    public boolean mineBlock(@NotNull ItemStack stack, Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull LivingEntity entity) {
         // 从物品堆栈获取锤子名称（使用工具类）
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
@@ -53,6 +54,25 @@ public class EmeraldHammer extends PickaxeItems {
 
         // 调用父类的挖掘方法处理基础逻辑
         return super.mineBlock(stack, level, state, pos, entity);
+    }
+
+    /**
+     * 重写攻击敌人方法，在攻击时也有概率触发幸运效果
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param target 被攻击的目标生物实体
+     * @param attacker 发起攻击的生物实体
+     * @return 如果攻击成功返回 true，否则返回 false
+     */
+    @Override
+    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
+        // 如果攻击者是玩家，尝试给予幸运效果
+        if (attacker instanceof Player player) {
+            applyLuckEffect(stack, player);
+        }
+
+        // 调用父类的攻击方法处理基础逻辑
+        return super.hurtEnemy(stack, target, attacker);
     }
 
     /**
