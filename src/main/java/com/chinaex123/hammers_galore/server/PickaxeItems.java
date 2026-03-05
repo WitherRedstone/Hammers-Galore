@@ -1,8 +1,10 @@
 package com.chinaex123.hammers_galore.server;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.tags.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -10,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -160,5 +163,34 @@ public class PickaxeItems extends PickaxeItem {
 
         // 检查方块是否在末影人黑名单中
         return !state.is(Tags.Blocks.ENDERMAN_PLACE_ON_BLACKLIST);
+    }
+
+    /**
+     * 检查物品是否可以被附魔
+     * 返回 true 使锤子可以在附魔台中附魔
+     */
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        // 确保物品堆栈有效
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        // 获取附魔值，确保大于 0
+        int enchantmentValue = this.getEnchantmentValue();
+        return enchantmentValue > 0;
+    }
+
+    /**
+     * 获取物品的附魔能力值
+     */
+    @Override
+    public int getEnchantmentValue() {
+        // 直接从 Tier 获取附魔值
+        Tier tier = this.getTier();
+        int enchantmentValue = tier.getEnchantmentValue();
+
+        // 确保附魔值至少为 1（防止显示"附魔能力受限"）
+        return Math.max(1, enchantmentValue);
     }
 }

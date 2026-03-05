@@ -1,6 +1,7 @@
 package com.chinaex123.hammers_galore;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.event.ModEnchantmentEvents;
 import com.chinaex123.hammers_galore.item.ModItems;
 import com.chinaex123.hammers_galore.server.HammerTickHandler;
 import com.chinaex123.hammers_galore.tooltip.HammerTooltip;
