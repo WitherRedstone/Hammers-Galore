@@ -6,7 +6,7 @@
       "tag": "c:rods/wooden"
     },
     "B": {
-      "tag": "c:ingots/iron"
+      "tag": "c:storage_blocks/iron"
     }
   },
   "pattern": [

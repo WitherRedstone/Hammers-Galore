@@ -50,6 +50,8 @@ These hammers possess unique mechanisms, bringing more possibilities to gameplay
 
 **Sculk Hammer**: Blocks mined with it are directly converted into experience orbs. It is an excellent tool for quickly gaining experience.
 
+**Emerald Hammer**：Grants Luck when mining or attacking based on durability.。
+
 ---
 
 # **中文**
@@ -97,3 +99,5 @@ These hammers possess unique mechanisms, bringing more possibilities to gameplay
 **玻璃锤**：虽然耐久度仅为1点，但拥有极高的攻击力。一击必杀，一击报废；
 
 **幽匿锤**：被它挖掘的方块会直接转化为经验球。是快速获取经验的利器。
+
+**绿宝石锤**：挖掘或攻击时根据耐久度给予幸运效果。

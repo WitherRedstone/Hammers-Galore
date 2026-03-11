@@ -6,7 +6,7 @@
       "tag": "c:rods/wooden"
     },
     "B": {
-      "tag": "c:gems/diamond"
+      "tag": "c:storage_blocks/diamond"
     }
   },
   "pattern": [

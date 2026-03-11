@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#c:ingots/gold"
+            "items": "#c:storage_blocks/gold"
           }
         ]
       },

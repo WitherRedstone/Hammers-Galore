@@ -96,6 +96,7 @@ public class ServerConfig {
         // 基础锤子
         registerHammerInternal("wood_hammer");
         registerHammerInternal("stone_hammer");
+        registerHammerInternal("copper_hammer");
         registerHammerInternal("iron_hammer");
         registerHammerInternal("gold_hammer");
         registerHammerInternal("diamond_hammer");
