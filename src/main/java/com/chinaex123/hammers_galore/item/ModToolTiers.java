@@ -21,7 +21,7 @@ public enum ModToolTiers implements Tier {
     // 石锤
     STONE_HAMMER(BlockTags.INCORRECT_FOR_STONE_TOOL, 512, 4F, 4.0F, 10, () -> Ingredient.of(Items.COBBLESTONE)),
     // 铜锤
-    COPPER_HAMMER(BlockTags.INCORRECT_FOR_STONE_TOOL, 512, 5F, 4.0F, 13, () -> Ingredient.of(Items.COBBLESTONE)),
+    COPPER_HAMMER(BlockTags.INCORRECT_FOR_STONE_TOOL, 512, 5F, 4.0F, 13, () -> Ingredient.of(Tags.Items.INGOTS_COPPER)),
     // 铁锤
     IRON_HAMMER(BlockTags.INCORRECT_FOR_IRON_TOOL, 1024, 6F, 5.0F, 14, () -> Ingredient.of(Tags.Items.INGOTS_IRON)),
     // 金锤
