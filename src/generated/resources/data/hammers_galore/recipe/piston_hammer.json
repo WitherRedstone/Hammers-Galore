@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "hammers_galore:iron_hammer",
+    "B": "minecraft:piston",
+    "C": "minecraft:glow_ink_sac"
+  },
+  "pattern": [
+    "BBB",
+    "CAC",
+    "BBB"
+  ],
+  "result": {
+    "id": "hammers_galore:piston_hammer"
+  }
+}

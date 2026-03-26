@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "#c:rods/wooden",
+    "B": "minecraft:cobblestone"
+  },
+  "pattern": [
+    " BA",
+    " AB",
+    "A  "
+  ],
+  "result": {
+    "id": "hammers_galore:stone_hammer"
+  }
+}

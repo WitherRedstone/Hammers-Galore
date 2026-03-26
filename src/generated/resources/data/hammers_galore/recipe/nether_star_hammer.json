@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "hammers_galore:netherite_hammer",
+    "B": "#c:gems/amethyst",
+    "C": "#c:nether_stars"
+  },
+  "pattern": [
+    "BCB",
+    "CAC",
+    "BCB"
+  ],
+  "result": {
+    "id": "hammers_galore:nether_star_hammer"
+  }
+}

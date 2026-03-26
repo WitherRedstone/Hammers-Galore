@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "hammers_galore:iron_hammer",
+    "B": "minecraft:sculk",
+    "C": "minecraft:experience_bottle"
+  },
+  "pattern": [
+    "BBB",
+    "CAC",
+    "BBB"
+  ],
+  "result": {
+    "id": "hammers_galore:sculk_hammer"
+  }
+}
