@@ -105,7 +105,7 @@ public class HeartOfTheSeaHammer extends PickaxeItems {
      */
     private void mineArea(ItemStack stack, ServerLevel level, BlockState centerState, BlockPos centerPos, LivingEntity entity, String tierName) {
         // 获取玩家面向方向
-        Direction direction = entity.getDirection();
+        Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘半径
         int radius = ServerConfig.getMiningRadius(tierName);

@@ -23,24 +23,52 @@ public class HammerMiningHelper {
      * @return 计算得出的挖掘方向
      */
     public static Direction getFacingFromBlock(BlockPos pos, LivingEntity entity) {
-        // 计算从玩家到方块中心的向量
+        // 优先使用玩家的视线方向（更准确）
+        if (entity instanceof net.minecraft.world.entity.player.Player player) {
+            // 获取玩家的 pitch 角度（-90 到 90）
+            float pitch = player.getXRot();
+
+            // 如果抬头或低头角度超过 45 度，认为是垂直挖掘
+            if (pitch > 45) {
+                return Direction.DOWN; // 低头看地面
+            } else if (pitch < -45) {
+                return Direction.UP; // 抬头看天空
+            }
+
+            // 否则使用水平方向
+            float yaw = player.getYRot();
+
+            // 将 yaw 转换为 -180 到 180 的范围
+            yaw = yaw % 360;
+            if (yaw > 180) yaw -= 360;
+            if (yaw < -180) yaw += 360;
+
+            // 根据 yaw 角度判断水平方向
+            if (yaw > -45 && yaw <= 45) {
+                return Direction.SOUTH; // 看向 Z+ 方向
+            } else if (yaw > 45 && yaw <= 135) {
+                return Direction.WEST; // 看向 X- 方向
+            } else if (yaw > 135 || yaw <= -135) {
+                return Direction.NORTH; // 看向 Z- 方向
+            } else {
+                return Direction.EAST; // 看向 X+ 方向
+            }
+        }
+
+        // 如果不是玩家，回退到原来的方法
         double dx = pos.getX() + 0.5 - entity.getX();
         double dy = pos.getY() + 0.5 - entity.getY();
         double dz = pos.getZ() + 0.5 - entity.getZ();
 
-        // 找出最大的轴向作为主要方向
         double absX = Math.abs(dx);
         double absY = Math.abs(dy);
         double absZ = Math.abs(dz);
 
         if (absY > absX && absY > absZ) {
-            // Y 轴最大，玩家主要在抬头或低头
             return dy > 0 ? Direction.UP : Direction.DOWN;
         } else if (absX > absZ) {
-            // X 轴最大
             return dx > 0 ? Direction.EAST : Direction.WEST;
         } else {
-            // Z 轴最大
             return dz > 0 ? Direction.SOUTH : Direction.NORTH;
         }
     }
