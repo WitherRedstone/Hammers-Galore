@@ -23,6 +23,9 @@ public class HammerTickHandler {
         if (mainHandItem.getItem() instanceof NetherStarHammer netherStarHammer) {
             // 如果是下界之星锤，应用攻击力和挖掘速度
             netherStarHammer.updateBonusFromTick(mainHandItem, player);
+        }else {
+            // 如果主手不是下界之星锤，移除增益
+            NetherStarHammer.removeBonusStatic(player);
         }
 
         // 如果是海洋之心锤，更新水中挖掘速度

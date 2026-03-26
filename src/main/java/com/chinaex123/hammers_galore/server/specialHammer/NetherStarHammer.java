@@ -21,12 +21,6 @@ public class NetherStarHammer extends PickaxeItems {
     private static final ResourceLocation SPEED_MODIFIER_ID =
             ResourceLocation.fromNamespaceAndPath("hammers_galore", "nether_star_hammer_speed_bonus");
 
-    // 最大攻击力加成（在耐久 30% 时）
-    private static final float MAX_ATTACK_BONUS = 3.0f;
-
-    // 最大挖掘速度加成（在耐久 30% 时）
-    private static final float MAX_SPEED_BONUS = 3.0f;
-
     public NetherStarHammer(Tier tier, Properties properties) {
         super(tier, properties);
     }
@@ -89,21 +83,23 @@ public class NetherStarHammer extends PickaxeItems {
      * @param entity 进行挖掘或攻击的生物实体
      */
     private void updateBonus(ItemStack stack, LivingEntity entity) {
-        // 计算当前耐久度比例（已损失耐久 / 最大耐久）
-        float durabilityRatio = (float) stack.getDamageValue() / (float) stack.getMaxDamage();
+        // 计算当前剩余耐久比例（剩余耐久 / 最大耐久）
+        float remainingDurability = 1.0f - ((float) stack.getDamageValue() / (float) stack.getMaxDamage());
 
-        // 从配置获取阈值
+        // 从配置获取阈值（配置中的值是剩余耐久比例）
         double thresholdLow = ServerConfig.getNetherStarThresholdLow();
         double thresholdHigh = ServerConfig.getNetherStarThresholdHigh();
 
-        // 耐久高于阈值时无增益
-        if (durabilityRatio < thresholdLow) {
+        // 耐久高于阈值时无增益（remainingDurability 越大，耐久越高）
+        if (remainingDurability > thresholdLow) {
             removeBonus(entity);
             return;
         }
 
         // 计算当前增益倍率 (0.0 ~ 1.0)
-        double bonusMultiplier = Math.max(0.0, Math.min(1.0, (durabilityRatio - thresholdLow) / (thresholdHigh - thresholdLow)));
+        // 当 remainingDurability = thresholdLow 时，multiplier = 0
+        // 当 remainingDurability = thresholdHigh 时，multiplier = 1
+        double bonusMultiplier = Math.max(0.0, Math.min(1.0, (thresholdLow - remainingDurability) / (thresholdLow - thresholdHigh)));
 
         // 从配置获取最大加成
         float maxAttackBonus = (float) ServerConfig.getNetherStarAttackBonus();
