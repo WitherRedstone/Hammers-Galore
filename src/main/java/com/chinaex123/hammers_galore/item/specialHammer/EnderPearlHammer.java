@@ -1,12 +1,11 @@
-package com.chinaex123.hammers_galore.server.specialHammer;
+package com.chinaex123.hammers_galore.item.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.server.HammerMiningHelper;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -19,14 +18,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ConduitHammer extends PickaxeItems {
+public class EnderPearlHammer extends PickaxeItems {
 
-    public ConduitHammer(Properties properties) {
+    public EnderPearlHammer(Properties properties) {
         super(properties);
     }
 
     /**
-     * 重写方块的挖掘方法，实现潮涌之锤的范围挖掘功能
+     * 重写方块的挖掘方法，实现末影锤的范围挖掘和自动收集掉落物功能
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 当前世界等级
@@ -43,45 +42,59 @@ public class ConduitHammer extends PickaxeItems {
         // 检查是否应该进行范围挖掘：不需要潜行或者玩家正在潜行
         boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
 
-        // 仅在服务端且满足条件时执行范围挖掘
+        // 仅在服务端且满足条件时执行范围挖掘（包括中心方块）
         if (!level.isClientSide() && shouldMineArea) {
             mineArea(stack, (ServerLevel) level, state, pos, entity, tierName);
-        }
-
-        // 调用父类的挖掘方法处理基础逻辑
-        return super.mineBlock(stack, level, state, pos, entity);
-    }
-
-    /**
-     * 玩家 Tick 事件处理方法，在玩家手持潮涌之锤且在水中时给予潮涌能量效果
-     *
-     * @param player 当前玩家实体
-     */
-    public static void onPlayerTick(Player player) {
-        // 获取玩家主手的物品
-        ItemStack mainHandItem = player.getMainHandItem();
-
-        // 检查主手是否持有潮涌之锤
-        boolean hasHammerInMainHand = mainHandItem.getItem() instanceof ConduitHammer;
-
-        // 如果玩家主手持有潮涌之锤
-        if (hasHammerInMainHand) {
-            // 检查玩家是否在水中或气泡中
-            if (player.isInWater()) {
-                // 给予潮涌能量效果（使用配置的值）
-                player.addEffect(new MobEffectInstance(
-                        net.minecraft.world.effect.MobEffects.CONDUIT_POWER,
-                        ServerConfig.getConduitEffectDuration(),  // 从配置获取持续时间
-                        ServerConfig.getConduitEffectAmplifier(), // 从配置获取等级
-                        false,
-                        true
-                ));
+        } else {
+            // 如果需要潜行但玩家没有潜行，只挖掘中心方块
+            if (!shouldMineArea) {
+                mineCenterBlock(stack, level, state, pos, entity);
             }
         }
+
+        // 挖掘成功
+        return true;
     }
 
     /**
-     * 在指定区域内进行范围挖掘，挖掘以中心位置为基准的方形区域
+     * 挖掘单个方块（中心方块），并将掉落物直接收入玩家背包
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 当前世界等级
+     * @param state 被挖掘方块的状态
+     * @param pos 被挖掘方块的位置
+     * @param entity 进行挖掘的生物实体
+     */
+    private void mineCenterBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
+        // 只有当挖掘实体是玩家时才处理
+        if (entity instanceof Player player) {
+            // 获取方块的掉落物列表
+            List<ItemStack> drops = Block.getDrops(state, (ServerLevel) level, pos, level.getBlockEntity(pos), entity, stack);
+
+            // 移除原方块（不生成掉落实体，手动处理）
+            level.destroyBlock(pos, false, entity);
+
+            // 尝试将掉落物添加到玩家背包
+            for (ItemStack drop : drops) {
+                // 尝试将物品放入玩家背包
+                boolean added = player.getInventory().add(drop);
+
+                // 如果背包已满无法添加，则生成掉落物实体
+                if (!added && !drop.isEmpty()) {
+                    ItemEntity itemEntity = new ItemEntity(level,
+                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                            drop.copy());
+                    level.addFreshEntity(itemEntity);
+                }
+            }
+
+            // 消耗工具耐久
+            stack.hurtAndBreak(1, entity, EquipmentSlot.MAINHAND);
+        }
+    }
+
+    /**
+     * 在指定区域内进行范围挖掘，并将所有掉落物直接收入玩家背包
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 服务端世界等级
@@ -112,10 +125,7 @@ public class ConduitHammer extends PickaxeItems {
 
         // 遍历挖掘区域内的所有位置
         for (BlockPos pos : areaPositions) {
-            // 跳过中心方块（由父类方法处理）
-            if (pos.equals(centerPos)) continue;
-
-            // 获取目标位置的方块状态
+            // 获取目标位置的方块状态（包括中心方块一起处理）
             BlockState targetState = level.getBlockState(pos);
 
             // 检查锤子是否可以挖掘此方块（使用工具类）
@@ -130,15 +140,32 @@ public class ConduitHammer extends PickaxeItems {
             // 获取方块的掉落物
             List<ItemStack> drops = Block.getDrops(targetState, level, pos, level.getBlockEntity(pos), entity, stack);
 
-            // 移除原方块（不生成掉落实体，手动生成）
+            // 移除原方块（不生成掉落实体，手动处理）
             level.destroyBlock(pos, false, entity);
 
-            // 生成掉落物品实体
-            for (ItemStack drop : drops) {
-                ItemEntity itemEntity = new ItemEntity(level,
-                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                        drop.copy());
-                level.addFreshEntity(itemEntity);
+            // 将掉落物放入玩家背包或生成掉落实体
+            if (entity instanceof Player player) {
+                // 如果是玩家，尝试将物品放入背包
+                for (ItemStack drop : drops) {
+                    // 尝试将物品放入玩家背包
+                    boolean added = player.getInventory().add(drop);
+
+                    // 如果背包已满无法添加，则生成掉落物实体
+                    if (!added && !drop.isEmpty()) {
+                        ItemEntity itemEntity = new ItemEntity(level,
+                                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                                drop.copy());
+                        level.addFreshEntity(itemEntity);
+                    }
+                }
+            } else {
+                // 如果不是玩家挖掘，正常生成掉落物实体
+                for (ItemStack drop : drops) {
+                    ItemEntity itemEntity = new ItemEntity(level,
+                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                            drop.copy());
+                    level.addFreshEntity(itemEntity);
+                }
             }
 
             // 消耗工具耐久

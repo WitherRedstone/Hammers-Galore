@@ -1,8 +1,9 @@
 package com.chinaex123.hammers_galore;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.item.ModItems;
-import com.chinaex123.hammers_galore.server.HammerTickHandler;
+import com.chinaex123.hammers_galore.init.ModCreativeTabs;
+import com.chinaex123.hammers_galore.init.ModItems;
+import com.chinaex123.hammers_galore.item.HammerTickHandler;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;

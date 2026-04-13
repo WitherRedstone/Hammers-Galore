@@ -1,8 +1,8 @@
-package com.chinaex123.hammers_galore.server.specialHammer;
+package com.chinaex123.hammers_galore.item.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.server.HammerMiningHelper;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
