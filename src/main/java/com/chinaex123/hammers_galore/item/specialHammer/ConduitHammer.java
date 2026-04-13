@@ -1,12 +1,12 @@
-package com.chinaex123.hammers_galore.server.specialHammer;
+package com.chinaex123.hammers_galore.item.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.server.HammerMiningHelper;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -19,17 +19,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PistonHammer extends PickaxeItems {
+public class ConduitHammer extends PickaxeItems {
 
-    private static final Identifier KNOCKBACK_MODIFIER_ID =
-            Identifier.fromNamespaceAndPath("hammers_galore", "piston_hammer_knockback");
-
-    public PistonHammer(Properties properties) {
+    public ConduitHammer(Properties properties) {
         super(properties);
     }
 
     /**
-     * 重写方块的挖掘方法，实现活塞锤的范围挖掘功能
+     * 重写方块的挖掘方法，实现潮涌之锤的范围挖掘功能
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 当前世界等级
@@ -56,49 +53,30 @@ public class PistonHammer extends PickaxeItems {
     }
 
     /**
-     * 重写攻击敌人方法，在攻击时应用强力的击退效果
+     * 玩家 Tick 事件处理方法，在玩家手持潮涌之锤且在水中时给予潮涌能量效果
      *
-     * @param stack 玩家手持的物品堆栈
-     * @param target 被攻击的目标生物实体
-     * @param attacker 发起攻击的生物实体
-     * @return 如果攻击成功返回 true，否则返回 false
+     * @param player 当前玩家实体
      */
-    @Override
-    public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        // 应用击退效果
-        applyKnockback(target, attacker);
+    public static void onPlayerTick(Player player) {
+        // 获取玩家主手的物品
+        ItemStack mainHandItem = player.getMainHandItem();
 
-        // 调用父类的攻击方法处理基础逻辑
-        super.hurtEnemy(stack, target, attacker);
-    }
+        // 检查主手是否持有潮涌之锤
+        boolean hasHammerInMainHand = mainHandItem.getItem() instanceof ConduitHammer;
 
-    /**
-     * 为被攻击的目标应用击退效果
-     *
-     * @param target 被攻击的目标生物实体
-     * @param attacker 发起攻击的生物实体
-     */
-    private void applyKnockback(LivingEntity target, LivingEntity attacker) {
-        // 从配置获取击退强度
-        double knockbackStrength = ServerConfig.getPistonKnockbackStrength();
-
-        // 计算击退方向
-        double dx = target.getX() - attacker.getX();
-        double dz = target.getZ() - attacker.getZ();
-        double distance = Math.sqrt(dx * dx + dz * dz);
-        if (distance > 0) {
-            dx /= distance;
-            dz /= distance;
-
-            // 应用击退
-            target.setDeltaMovement(
-                    dx * knockbackStrength,
-                    0.5, // 向上击飞
-                    dz * knockbackStrength
-            );
-            
-            // 标记实体有速度变化（替代 hasImpulse）
-            target.hurtMarked = true;
+        // 如果玩家主手持有潮涌之锤
+        if (hasHammerInMainHand) {
+            // 检查玩家是否在水中或气泡中
+            if (player.isInWater()) {
+                // 给予潮涌能量效果（使用配置的值）
+                player.addEffect(new MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.CONDUIT_POWER,
+                        ServerConfig.getConduitEffectDuration(),  // 从配置获取持续时间
+                        ServerConfig.getConduitEffectAmplifier(), // 从配置获取等级
+                        false,
+                        true
+                ));
+            }
         }
     }
 

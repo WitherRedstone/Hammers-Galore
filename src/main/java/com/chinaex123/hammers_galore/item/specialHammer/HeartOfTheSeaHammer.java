@@ -1,14 +1,17 @@
-package com.chinaex123.hammers_galore.server.specialHammer;
+package com.chinaex123.hammers_galore.item.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.server.HammerMiningHelper;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,14 +22,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ConduitHammer extends PickaxeItems {
+public class HeartOfTheSeaHammer extends PickaxeItems {
 
-    public ConduitHammer(Properties properties) {
+    private static final Identifier WATER_MINING_SPEED_ID =
+            Identifier.fromNamespaceAndPath("hammers_galore", "heart_of_the_sea_water_speed");
+
+    public HeartOfTheSeaHammer(Properties properties) {
         super(properties);
     }
 
     /**
-     * 重写方块的挖掘方法，实现潮涌之锤的范围挖掘功能
+     * 重写方块的挖掘方法，实现海洋之心锤的范围挖掘功能
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 当前世界等级
@@ -53,7 +59,7 @@ public class ConduitHammer extends PickaxeItems {
     }
 
     /**
-     * 玩家 Tick 事件处理方法，在玩家手持潮涌之锤且在水中时给予潮涌能量效果
+     * 玩家 Tick 事件处理方法，在玩家手持海洋之心锤且在水中时应用挖掘速度加成
      *
      * @param player 当前玩家实体
      */
@@ -61,21 +67,28 @@ public class ConduitHammer extends PickaxeItems {
         // 获取玩家主手的物品
         ItemStack mainHandItem = player.getMainHandItem();
 
-        // 检查主手是否持有潮涌之锤
-        boolean hasHammerInMainHand = mainHandItem.getItem() instanceof ConduitHammer;
+        // 检查主手是否持有海洋之心锤
+        boolean hasHammerInMainHand = mainHandItem.getItem() instanceof HeartOfTheSeaHammer;
 
-        // 如果玩家主手持有潮涌之锤
+        // 如果玩家主手持有海洋之心锤
         if (hasHammerInMainHand) {
-            // 检查玩家是否在水中或气泡中
-            if (player.isInWater()) {
-                // 给予潮涌能量效果（使用配置的值）
-                player.addEffect(new MobEffectInstance(
-                        net.minecraft.world.effect.MobEffects.CONDUIT_POWER,
-                        ServerConfig.getConduitEffectDuration(),  // 从配置获取持续时间
-                        ServerConfig.getConduitEffectAmplifier(), // 从配置获取等级
-                        false,
-                        true
-                ));
+            // 获取玩家的挖掘速度属性
+            AttributeInstance speedAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
+            if (speedAttr != null) {
+                // 检查玩家是否在水中或气泡中
+                if (player.isInWater()) {
+                    // 在水里：应用 5 倍速度加成（抵消水下惩罚）
+                    if (!speedAttr.hasModifier(WATER_MINING_SPEED_ID)) {
+                        speedAttr.addTransientModifier(new AttributeModifier(
+                                WATER_MINING_SPEED_ID,
+                                4.0,  // +400% = 总共 5 倍速度
+                                AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                        ));
+                    }
+                } else {
+                    // 不在水里：移除加成
+                    speedAttr.removeModifier(WATER_MINING_SPEED_ID);
+                }
             }
         }
     }

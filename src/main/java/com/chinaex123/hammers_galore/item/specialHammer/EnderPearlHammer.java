@@ -1,35 +1,31 @@
-package com.chinaex123.hammers_galore.server.specialHammer;
+package com.chinaex123.hammers_galore.item.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.server.HammerMiningHelper;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Optional;
 
-public class MagmaHammer extends PickaxeItems {
+public class EnderPearlHammer extends PickaxeItems {
 
-    public MagmaHammer(Properties properties) {
+    public EnderPearlHammer(Properties properties) {
         super(properties);
     }
 
     /**
-     * 重写方块的挖掘方法，实现岩浆锤的范围挖掘和自动烧炼功能
+     * 重写方块的挖掘方法，实现末影锤的范围挖掘和自动收集掉落物功能
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 当前世界等级
@@ -52,7 +48,7 @@ public class MagmaHammer extends PickaxeItems {
         } else {
             // 如果需要潜行但玩家没有潜行，只挖掘中心方块
             if (!shouldMineArea) {
-                mineSingleBlock(stack, level, state, pos, entity);
+                mineCenterBlock(stack, level, state, pos, entity);
             }
         }
 
@@ -61,37 +57,44 @@ public class MagmaHammer extends PickaxeItems {
     }
 
     /**
-     * 挖掘单个方块
+     * 挖掘单个方块（中心方块），并将掉落物直接收入玩家背包
+     *
+     * @param stack 玩家手持的物品堆栈
+     * @param level 当前世界等级
+     * @param state 被挖掘方块的状态
+     * @param pos 被挖掘方块的位置
+     * @param entity 进行挖掘的生物实体
      */
-    private void mineSingleBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
+    private void mineCenterBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
+        // 只有当挖掘实体是玩家时才处理
         if (entity instanceof Player player) {
-            // 检查是否可以挖掘（使用工具类）
-            if (!HammerMiningHelper.canHammerMine(state)) return;
-            if (!isCorrectToolForDrops(stack, state)) return;
-
-            // 获取掉落物
+            // 获取方块的掉落物列表
             List<ItemStack> drops = Block.getDrops(state, (ServerLevel) level, pos, level.getBlockEntity(pos), entity, stack);
 
-            // 移除原方块
+            // 移除原方块（不生成掉落实体，手动处理）
             level.destroyBlock(pos, false, entity);
 
-            // 将矿物烧炼后掉落
+            // 尝试将掉落物添加到玩家背包
             for (ItemStack drop : drops) {
-                ItemStack smeltedResult = smeltItem(drop, level);
+                // 尝试将物品放入玩家背包
+                boolean added = player.getInventory().add(drop);
 
-                ItemEntity itemEntity = new ItemEntity(level,
-                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                        smeltedResult.copy());
-                level.addFreshEntity(itemEntity);
+                // 如果背包已满无法添加，则生成掉落物实体
+                if (!added && !drop.isEmpty()) {
+                    ItemEntity itemEntity = new ItemEntity(level,
+                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                            drop.copy());
+                    level.addFreshEntity(itemEntity);
+                }
             }
 
-            // 消耗耐久
-            stack.hurtAndBreak(1, entity,EquipmentSlot.MAINHAND);
+            // 消耗工具耐久
+            stack.hurtAndBreak(1, entity, EquipmentSlot.MAINHAND);
         }
     }
 
     /**
-     * 在指定区域内进行范围挖掘，挖掘以中心位置为基准的方形区域，并将矿物烧炼后掉落
+     * 在指定区域内进行范围挖掘，并将所有掉落物直接收入玩家背包
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 服务端世界等级
@@ -134,21 +137,33 @@ public class MagmaHammer extends PickaxeItems {
             // 检查锤子是否能从此方块获取掉落物
             if (!isCorrectToolForDrops(stack, targetState)) continue;
 
-            // 检查是否是受重力影响的方块（沙子、沙砾等）
-            if (targetState.canBeReplaced() || !targetState.isAir()) {
-                // 获取方块的掉落物
-                List<ItemStack> drops = Block.getDrops(targetState, level, pos, level.getBlockEntity(pos), entity, stack);
+            // 获取方块的掉落物
+            List<ItemStack> drops = Block.getDrops(targetState, level, pos, level.getBlockEntity(pos), entity, stack);
 
-                // 移除原方块（不生成掉落实体，手动处理）
-                level.destroyBlock(pos, false, entity);
+            // 移除原方块（不生成掉落实体，手动处理）
+            level.destroyBlock(pos, false, entity);
 
-                // 将矿物烧炼后掉落
+            // 将掉落物放入玩家背包或生成掉落实体
+            if (entity instanceof Player player) {
+                // 如果是玩家，尝试将物品放入背包
                 for (ItemStack drop : drops) {
-                    ItemStack smeltedResult = smeltItem(drop, level);
+                    // 尝试将物品放入玩家背包
+                    boolean added = player.getInventory().add(drop);
 
+                    // 如果背包已满无法添加，则生成掉落物实体
+                    if (!added && !drop.isEmpty()) {
+                        ItemEntity itemEntity = new ItemEntity(level,
+                                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                                drop.copy());
+                        level.addFreshEntity(itemEntity);
+                    }
+                }
+            } else {
+                // 如果不是玩家挖掘，正常生成掉落物实体
+                for (ItemStack drop : drops) {
                     ItemEntity itemEntity = new ItemEntity(level,
                             pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                            smeltedResult.copy());
+                            drop.copy());
                     level.addFreshEntity(itemEntity);
                 }
             }
@@ -164,48 +179,5 @@ public class MagmaHammer extends PickaxeItems {
         if (enableHungerCost && blocksMined > 0 && entity instanceof Player player) {
             player.causeFoodExhaustion(blocksMined * 0.5f);
         }
-    }
-
-    /**
-     * 尝试将物品烧炼，查找对应的熔炉配方并返回烧炼后的产物
-     *
-     * @param input 待烧炼的物品堆栈
-     * @param level 当前世界等级（用于获取配方管理器）
-     * @return 烧炼后的物品堆栈；如果没有对应的烧炼配方，则返回原物品
-     */
-    private ItemStack smeltItem(ItemStack input, Level level) {
-        // 如果输入为空，返回空物品
-        if (input.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-
-        // 只在服务端处理
-        if (level.isClientSide()) {
-            return input;
-        }
-
-        // 获取服务器
-        net.minecraft.server.MinecraftServer server = level.getServer();
-        if (server == null) {
-            return input;
-        }
-
-        // 获取配方管理器
-        RecipeManager recipeManager = server.getRecipeManager();
-
-        // 使用配方输入来匹配烧炼配方
-        SingleRecipeInput recipeInput = new SingleRecipeInput(input);
-        
-        // 直接获取烧炼配方的第一个匹配结果
-        Optional<RecipeHolder<@NotNull SmeltingRecipe>> recipeOpt = recipeManager.getRecipeFor(RecipeType.SMELTING, recipeInput, level);
-        
-        if (recipeOpt.isPresent()) {
-            // 找到匹配的配方，返回烧炼结果
-            RecipeHolder<@NotNull SmeltingRecipe> holder = recipeOpt.get();
-            return holder.value().assemble(recipeInput).copy();
-        }
-
-        // 没有烧炼配方，返回原物品
-        return input;
     }
 }

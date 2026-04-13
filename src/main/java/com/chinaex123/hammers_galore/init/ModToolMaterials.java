@@ -1,6 +1,5 @@
-package com.chinaex123.hammers_galore.item;
+package com.chinaex123.hammers_galore.init;
 
-import com.chinaex123.hammers_galore.tags.ModItemTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ToolMaterial;
 

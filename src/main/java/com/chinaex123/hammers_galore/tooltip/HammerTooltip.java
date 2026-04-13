@@ -1,7 +1,7 @@
 package com.chinaex123.hammers_galore.tooltip;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.item.ModToolMaterials;
+import com.chinaex123.hammers_galore.init.ModToolMaterials;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;

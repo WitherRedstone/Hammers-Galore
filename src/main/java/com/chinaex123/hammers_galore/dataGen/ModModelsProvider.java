@@ -1,7 +1,7 @@
 package com.chinaex123.hammers_galore.dataGen;
 
 import com.chinaex123.hammers_galore.HammersGalore;
-import com.chinaex123.hammers_galore.item.ModItems;
+import com.chinaex123.hammers_galore.init.ModItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;

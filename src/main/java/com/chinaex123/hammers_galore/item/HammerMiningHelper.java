@@ -1,4 +1,4 @@
-package com.chinaex123.hammers_galore.server;
+package com.chinaex123.hammers_galore.item;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

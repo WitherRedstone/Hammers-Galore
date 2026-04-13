@@ -1,8 +1,8 @@
-package com.chinaex123.hammers_galore.server;
+package com.chinaex123.hammers_galore.item;
 
-import com.chinaex123.hammers_galore.server.specialHammer.ConduitHammer;
-import com.chinaex123.hammers_galore.server.specialHammer.HeartOfTheSeaHammer;
-import com.chinaex123.hammers_galore.server.specialHammer.NetherStarHammer;
+import com.chinaex123.hammers_galore.item.specialHammer.ConduitHammer;
+import com.chinaex123.hammers_galore.item.specialHammer.HeartOfTheSeaHammer;
+import com.chinaex123.hammers_galore.item.specialHammer.NetherStarHammer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
