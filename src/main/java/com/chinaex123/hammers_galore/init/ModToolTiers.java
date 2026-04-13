@@ -1,4 +1,4 @@
-package com.chinaex123.hammers_galore.item;
+package com.chinaex123.hammers_galore.init;
 
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;

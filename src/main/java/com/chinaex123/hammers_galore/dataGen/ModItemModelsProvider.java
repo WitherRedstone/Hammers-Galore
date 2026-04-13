@@ -1,9 +1,8 @@
 package com.chinaex123.hammers_galore.dataGen;
 
 import com.chinaex123.hammers_galore.HammersGalore;
-import com.chinaex123.hammers_galore.item.ModItems;
+import com.chinaex123.hammers_galore.init.ModItems;
 import net.minecraft.data.PackOutput;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 

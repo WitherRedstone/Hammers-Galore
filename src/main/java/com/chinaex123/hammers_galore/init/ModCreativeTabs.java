@@ -1,15 +1,11 @@
-package com.chinaex123.hammers_galore;
+package com.chinaex123.hammers_galore.init;
 
-import com.chinaex123.hammers_galore.item.ModItems;
+import com.chinaex123.hammers_galore.HammersGalore;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;

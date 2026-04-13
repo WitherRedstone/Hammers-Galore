@@ -1,16 +1,13 @@
-package com.chinaex123.hammers_galore.server.specialHammer;
+package com.chinaex123.hammers_galore.item.specialHammer;
 
 import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.server.HammerMiningHelper;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,17 +19,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class HeartOfTheSeaHammer extends PickaxeItems {
+public class PistonHammer extends PickaxeItems {
 
-    private static final ResourceLocation WATER_MINING_SPEED_ID =
-            ResourceLocation.fromNamespaceAndPath("hammers_galore", "heart_of_the_sea_water_speed");
+    private static final ResourceLocation KNOCKBACK_MODIFIER_ID =
+            ResourceLocation.fromNamespaceAndPath("hammers_galore", "piston_hammer_knockback");
 
-    public HeartOfTheSeaHammer(Tier tier, Properties properties) {
+    public PistonHammer(Tier tier, Properties properties) {
         super(tier, properties);
     }
 
     /**
-     * 重写方块的挖掘方法，实现海洋之心锤的范围挖掘功能
+     * 重写方块的挖掘方法，实现活塞锤的范围挖掘功能
      *
      * @param stack 玩家手持的物品堆栈
      * @param level 当前世界等级
@@ -59,37 +56,49 @@ public class HeartOfTheSeaHammer extends PickaxeItems {
     }
 
     /**
-     * 玩家 Tick 事件处理方法，在玩家手持海洋之心锤且在水中时应用挖掘速度加成
+     * 重写攻击敌人方法，在攻击时应用强力的击退效果
      *
-     * @param player 当前玩家实体
+     * @param stack 玩家手持的物品堆栈
+     * @param target 被攻击的目标生物实体
+     * @param attacker 发起攻击的生物实体
+     * @return 如果攻击成功返回 true，否则返回 false
      */
-    public static void onPlayerTick(Player player) {
-        // 获取玩家主手的物品
-        ItemStack mainHandItem = player.getMainHandItem();
+    @Override
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        // 应用击退效果
+        applyKnockback(target, attacker);
 
-        // 检查主手是否持有海洋之心锤
-        boolean hasHammerInMainHand = mainHandItem.getItem() instanceof HeartOfTheSeaHammer;
+        // 调用父类的攻击方法处理基础逻辑
+        return super.hurtEnemy(stack, target, attacker);
+    }
 
-        // 如果玩家主手持有海洋之心锤
-        if (hasHammerInMainHand) {
-            // 获取玩家的挖掘速度属性
-            AttributeInstance speedAttr = player.getAttribute(Attributes.BLOCK_BREAK_SPEED);
-            if (speedAttr != null) {
-                // 检查玩家是否在水中或气泡中
-                if (player.isInWaterOrBubble()) {
-                    // 在水里：应用 5 倍速度加成（抵消水下惩罚）
-                    if (!speedAttr.hasModifier(WATER_MINING_SPEED_ID)) {
-                        speedAttr.addTransientModifier(new AttributeModifier(
-                                WATER_MINING_SPEED_ID,
-                                4.0,  // +400% = 总共 5 倍速度
-                                AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
-                        ));
-                    }
-                } else {
-                    // 不在水里：移除加成
-                    speedAttr.removeModifier(WATER_MINING_SPEED_ID);
-                }
-            }
+    /**
+     * 为被攻击的目标应用击退效果
+     *
+     * @param target 被攻击的目标生物实体
+     * @param attacker 发起攻击的生物实体
+     */
+    private void applyKnockback(LivingEntity target, LivingEntity attacker) {
+        // 从配置获取击退强度
+        double knockbackStrength = ServerConfig.getPistonKnockbackStrength();
+
+        // 计算击退方向
+        double dx = target.getX() - attacker.getX();
+        double dz = target.getZ() - attacker.getZ();
+
+        // 归一化并应用击退
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        if (distance > 0) {
+            dx /= distance;
+            dz /= distance;
+
+            // 应用击退
+            target.setDeltaMovement(
+                    dx * knockbackStrength,
+                    0.5, // 向上击飞
+                    dz * knockbackStrength
+            );
+            target.hasImpulse = true;
         }
     }
 

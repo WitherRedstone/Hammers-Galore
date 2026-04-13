@@ -1,8 +1,8 @@
-package com.chinaex123.hammers_galore.item;
+package com.chinaex123.hammers_galore.init;
 
 import com.chinaex123.hammers_galore.HammersGalore;
-import com.chinaex123.hammers_galore.server.PickaxeItems;
-import com.chinaex123.hammers_galore.server.specialHammer.*;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
+import com.chinaex123.hammers_galore.item.specialHammer.*;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;

@@ -1,15 +1,12 @@
 package com.chinaex123.hammers_galore.dataGen;
 
 import com.chinaex123.hammers_galore.HammersGalore;
-import com.chinaex123.hammers_galore.item.ModItems;
-import com.chinaex123.hammers_galore.tags.ModItemTags;
-import joptsimple.internal.Rows;
+import com.chinaex123.hammers_galore.init.ModItems;
+import com.chinaex123.hammers_galore.init.ModItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
