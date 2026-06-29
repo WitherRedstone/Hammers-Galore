@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "#c:glass_blocks",
+  "base": "hammers_galore:netherite_hammer",
+  "result": {
+    "id": "hammers_galore:glass_hammer"
+  },
+  "template": "minecraft:netherite_upgrade_smithing_template"
+}
