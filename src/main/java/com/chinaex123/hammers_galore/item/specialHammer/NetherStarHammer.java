@@ -1,6 +1,7 @@
 package com.chinaex123.hammers_galore.item.specialHammer;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.HammersGalore;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
 import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -14,12 +15,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 下界之星锤
+ * <p>
+ * 根据剩余耐久动态提供攻击力与挖掘速度加成，耐久越低增益越强。
+ */
 public class NetherStarHammer extends PickaxeItems {
 
-    private static final ResourceLocation ATTACK_MODIFIER_ID =
-            ResourceLocation.fromNamespaceAndPath("hammers_galore", "nether_star_hammer_attack_bonus");
-    private static final ResourceLocation SPEED_MODIFIER_ID =
-            ResourceLocation.fromNamespaceAndPath("hammers_galore", "nether_star_hammer_speed_bonus");
+    private static final ResourceLocation ATTACK_MODIFIER_ID = HammersGalore.id("nether_star_hammer_attack_bonus");
+    private static final ResourceLocation SPEED_MODIFIER_ID = HammersGalore.id("nether_star_hammer_speed_bonus");
 
     public NetherStarHammer(Tier tier, Properties properties) {
         super(tier, properties);
@@ -87,8 +91,8 @@ public class NetherStarHammer extends PickaxeItems {
         float remainingDurability = 1.0f - ((float) stack.getDamageValue() / (float) stack.getMaxDamage());
 
         // 从配置获取阈值（配置中的值是剩余耐久比例）
-        double thresholdLow = ServerConfig.getNetherStarThresholdLow();
-        double thresholdHigh = ServerConfig.getNetherStarThresholdHigh();
+        double thresholdLow = HGServerConfig.NETHER_STAR_TRIGGER_THRESHOLD_LOW.get();
+        double thresholdHigh = HGServerConfig.NETHER_STAR_TRIGGER_THRESHOLD_HIGH.get();
 
         // 耐久高于阈值时无增益（remainingDurability 越大，耐久越高）
         if (remainingDurability > thresholdLow) {
@@ -97,13 +101,11 @@ public class NetherStarHammer extends PickaxeItems {
         }
 
         // 计算当前增益倍率 (0.0 ~ 1.0)
-        // 当 remainingDurability = thresholdLow 时，multiplier = 0
-        // 当 remainingDurability = thresholdHigh 时，multiplier = 1
-        double bonusMultiplier = Math.max(0.0, Math.min(1.0, (thresholdLow - remainingDurability) / (thresholdLow - thresholdHigh)));
+        double bonusMultiplier = Math.clamp((thresholdLow - remainingDurability) / (thresholdLow - thresholdHigh), 0.0, 1.0);
 
         // 从配置获取最大加成
-        float maxAttackBonus = (float) ServerConfig.getNetherStarAttackBonus();
-        float maxSpeedBonus = (float) ServerConfig.getNetherStarSpeedBonus();
+        float maxAttackBonus = HGServerConfig.NETHER_STAR_MAX_ATTACK_BONUS.get().floatValue();
+        float maxSpeedBonus = HGServerConfig.NETHER_STAR_MAX_SPEED_BONUS.get().floatValue();
 
         // 计算实际的攻击力和挖掘速度加成
         float attackBonus = maxAttackBonus * (float)bonusMultiplier;

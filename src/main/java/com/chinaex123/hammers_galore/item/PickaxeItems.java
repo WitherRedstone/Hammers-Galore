@@ -1,6 +1,5 @@
 package com.chinaex123.hammers_galore.item;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -34,8 +33,7 @@ public class PickaxeItems extends PickaxeItem {
      */
     public static Properties createProperties(Tier tier, float attackDamage, float attackSpeed) {
         // 设置物品属性，包括攻击力和攻击速度
-        return new Properties()
-                .attributes(PickaxeItem.createAttributes(tier, attackDamage, attackSpeed));
+        return new Properties().attributes(PickaxeItem.createAttributes(tier, attackDamage, attackSpeed));
     }
 
     /**
@@ -55,7 +53,7 @@ public class PickaxeItems extends PickaxeItem {
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否需要潜行（根据当前锤子的配置）
-        boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
+        boolean shouldMineArea = !requireSneak(tierName) || entity.isCrouching();
 
         // 只在服务端且满足条件时触发范围挖掘
         if (!level.isClientSide && shouldMineArea) {
@@ -81,16 +79,16 @@ public class PickaxeItems extends PickaxeItem {
         Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘范围 - 根据工具等级
-        int radius = ServerConfig.getMiningRadius(tierName);
+        int radius = getMiningRadius(tierName);
 
         // 如果半径为 0，表示禁用范围挖掘
         if (radius <= 0) return;
 
         // 获取耐久消耗（根据当前锤子的配置）
-        int durabilityCost = ServerConfig.getDurabilityCost(tierName);
+        int durabilityCost = getDurabilityCost(tierName);
 
         // 检查是否启用饱食度消耗
-        boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
+        boolean enableHungerCost = enableHungerCostConfig(tierName);
 
         // 计算挖掘区域的偏移量（使用工具类）
         List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);
@@ -189,5 +187,25 @@ public class PickaxeItems extends PickaxeItem {
 
         // 确保附魔值至少为 1（防止显示"附魔能力受限"）
         return Math.max(1, enchantmentValue);
+    }
+
+    private static boolean requireSneak(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.requireSneak() != null ? cfg.requireSneak().get() : true;
+    }
+
+    private static int getMiningRadius(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.miningRange() != null ? HammerMiningHelper.toRadius(cfg.miningRange().get()) : 3;
+    }
+
+    private static int getDurabilityCost(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.durabilityCost() != null ? cfg.durabilityCost().get() : 1;
+    }
+
+    private static boolean enableHungerCostConfig(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.enableHungerCost() != null ? cfg.enableHungerCost().get() : false;
     }
 }

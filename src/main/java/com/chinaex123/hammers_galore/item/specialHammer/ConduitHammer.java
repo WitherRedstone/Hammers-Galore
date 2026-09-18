@@ -1,12 +1,13 @@
 package com.chinaex123.hammers_galore.item.specialHammer;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
 import com.chinaex123.hammers_galore.item.HammerMiningHelper;
 import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +20,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * 潮涌之锤
+ * <p>
+ * 提供范围挖掘，并在玩家水中手持时持续给予潮涌能量效果。
+ */
 public class ConduitHammer extends PickaxeItems {
 
     public ConduitHammer(Tier tier, Properties properties) {
@@ -41,7 +47,7 @@ public class ConduitHammer extends PickaxeItems {
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否应该进行范围挖掘：不需要潜行或者玩家正在潜行
-        boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
+        boolean shouldMineArea = !HGServerConfig.CONDUIT_HAMMER_REQUIRE_SNEAK.get() || entity.isCrouching();
 
         // 仅在服务端且满足条件时执行范围挖掘
         if (!level.isClientSide && shouldMineArea) {
@@ -70,11 +76,10 @@ public class ConduitHammer extends PickaxeItems {
             if (player.isInWaterOrBubble()) {
                 // 给予潮涌能量效果（使用配置的值）
                 player.addEffect(new MobEffectInstance(
-                        net.minecraft.world.effect.MobEffects.CONDUIT_POWER,
-                        ServerConfig.getConduitEffectDuration(),  // 从配置获取持续时间
-                        ServerConfig.getConduitEffectAmplifier(), // 从配置获取等级
-                        false,
-                        true
+                        MobEffects.CONDUIT_POWER,
+                        HGServerConfig.CONDUIT_EFFECT_DURATION.get(),
+                        HGServerConfig.CONDUIT_EFFECT_AMPLIFIER.get(),
+                        false, true
                 ));
             }
         }
@@ -95,14 +100,14 @@ public class ConduitHammer extends PickaxeItems {
         Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘半径
-        int radius = ServerConfig.getMiningRadius(tierName);
+        int radius = HammerMiningHelper.toRadius(HGServerConfig.CONDUIT_HAMMER_MINING_RANGE.get());
 
         // 如果半径为 0 或负数，表示禁用范围挖掘，直接返回
         if (radius <= 0) return;
 
         // 从配置获取耐久消耗和饱食度消耗设置
-        int durabilityCost = ServerConfig.getDurabilityCost(tierName);
-        boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
+        int durabilityCost = HGServerConfig.CONDUIT_HAMMER_DURABILITY_COST.get();
+        boolean enableHungerCost = HGServerConfig.CONDUIT_HAMMER_ENABLE_HUNGER_COST.get();
 
         // 计算挖掘区域内的所有方块位置（使用工具类）
         List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);

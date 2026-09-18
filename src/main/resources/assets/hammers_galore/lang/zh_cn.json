@@ -8,7 +8,6 @@
   "item.hammers_galore.gold_hammer": "金锤",
   "item.hammers_galore.diamond_hammer": "钻石锤",
   "item.hammers_galore.netherite_hammer": "下界合金锤",
-
   "item.hammers_galore.nether_star_hammer": "下界之星锤",
   "item.hammers_galore.heart_of_the_sea_hammer": "海洋之心锤",
   "item.hammers_galore.conduit_hammer": "潮涌之锤",
@@ -44,5 +43,6 @@
   "tooltip.hammers_galore.piston.knockback": "  强力击退：攻击时将生物击退 %s 格",
   "tooltip.hammers_galore.glass.low_durability": "  低耐久但高攻击：仅 1 点耐久，使用需谨慎！",
   "tooltip.hammers_galore.sculk.xp_drop": "  经验吸收：每物品 %s XP，矿石 ×%d 倍",
-  "tooltip.hammers_galore.emerald_hammer.chance": "  天选之子：挖掘和攻击时有 %s 几率触发幸运效果"
+  "tooltip.hammers_galore.emerald_hammer.chance": "  天选之子：挖掘和攻击时有 %s 几率触发幸运效果",
+  "tooltip.hammers_galore.mining_level.unknown": "%s级"
 }

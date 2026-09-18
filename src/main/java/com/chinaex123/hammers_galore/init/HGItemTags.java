@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
-public interface ModItemTags {
+public interface HGItemTags {
 
     TagKey<Item> HAMMERS = bind("hammers");
 

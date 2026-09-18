@@ -1,7 +1,7 @@
 package com.chinaex123.hammers_galore.dataGen;
 
 import com.chinaex123.hammers_galore.HammersGalore;
-import com.chinaex123.hammers_galore.init.ModItems;
+import com.chinaex123.hammers_galore.init.HGItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
@@ -25,7 +25,7 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
         // ==================== 基础工具 ====================
         // 木锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.WOOD_HAMMER.get())
+                        HGItems.WOOD_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -35,7 +35,7 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 石锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.STONE_HAMMER.get())
+                        HGItems.STONE_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -45,7 +45,7 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 铜锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.COPPER_HAMMER.get())
+                        HGItems.COPPER_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -55,7 +55,7 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 铁锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.IRON_HAMMER.get())
+                        HGItems.IRON_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -65,7 +65,7 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 金锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.GOLD_HAMMER.get())
+                        HGItems.GOLD_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -75,7 +75,7 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 钻石锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.DIAMOND_HAMMER.get())
+                        HGItems.DIAMOND_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -86,9 +86,9 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
         // 下界合金锤
         SmithingTransformRecipeBuilder.smithing(
                         Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
-                        Ingredient.of(ModItems.DIAMOND_HAMMER),
+                        Ingredient.of(HGItems.DIAMOND_HAMMER),
                         Ingredient.of(Tags.Items.INGOTS_NETHERITE),
-                        RecipeCategory.MISC, ModItems.NETHERITE_HAMMER.get()
+                        RecipeCategory.MISC, HGItems.NETHERITE_HAMMER.get()
                 )
                 .unlocks("has_netherite_hammer", has(Tags.Items.INGOTS_NETHERITE))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(HammersGalore.MOD_ID, "netherite_hammer"));
@@ -96,18 +96,18 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
         // ==================== 特殊锤子 ====================
         // 下界之星锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.NETHER_STAR_HAMMER.get())
+                        HGItems.NETHER_STAR_HAMMER.get())
                 .pattern("BCB")
                 .pattern("CAC")
                 .pattern("BCB")
-                .define('A', ModItems.NETHERITE_HAMMER)
+                .define('A', HGItems.NETHERITE_HAMMER)
                 .define('B', Tags.Items.GEMS_AMETHYST)
                 .define('C', Tags.Items.NETHER_STARS)
-                .unlockedBy("has_nether_star_hammer", has(ModItems.NETHERITE_HAMMER))
+                .unlockedBy("has_nether_star_hammer", has(HGItems.NETHERITE_HAMMER))
                 .save(recipeOutput);
         // 海洋之心锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.HEART_OF_THE_SEA_HAMMER.get())
+                        HGItems.HEART_OF_THE_SEA_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -117,18 +117,18 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 潮涌之锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.CONDUIT_HAMMER.get())
+                        HGItems.CONDUIT_HAMMER.get())
                 .pattern("BCB")
                 .pattern("CAC")
                 .pattern("BCB")
-                .define('A', ModItems.HEART_OF_THE_SEA_HAMMER)
+                .define('A', HGItems.HEART_OF_THE_SEA_HAMMER)
                 .define('B', Tags.Items.GEMS_AMETHYST)
                 .define('C', Items.CONDUIT)
                 .unlockedBy("has_conduit_hammer", has(Items.CONDUIT))
                 .save(recipeOutput);
         // 末影锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.ENDER_PEARL_HAMMER.get())
+                        HGItems.ENDER_PEARL_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")
@@ -138,21 +138,21 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
                 .save(recipeOutput);
         // 岩浆锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.MAGMA_HAMMER.get())
+                        HGItems.MAGMA_HAMMER.get())
                 .pattern("BBB")
                 .pattern("BAB")
                 .pattern("BBB")
-                .define('A', ModItems.IRON_HAMMER)
+                .define('A', HGItems.IRON_HAMMER)
                 .define('B', Items.MAGMA_BLOCK)
                 .unlockedBy("has_magma_hammer", has(Items.MAGMA_BLOCK))
                 .save(recipeOutput);
         // 活塞锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.PISTON_HAMMER.get())
+                        HGItems.PISTON_HAMMER.get())
                 .pattern("BBB")
                 .pattern("CAC")
                 .pattern("BBB")
-                .define('A', ModItems.IRON_HAMMER)
+                .define('A', HGItems.IRON_HAMMER)
                 .define('B', Items.PISTON)
                 .define('C', Items.GLOW_INK_SAC)
                 .unlockedBy("has_piston_hammer", has(Items.PISTON))
@@ -160,26 +160,26 @@ public class ModRecipesProvider extends RecipeProvider implements IConditionBuil
         // 玻璃锤
         SmithingTransformRecipeBuilder.smithing(
                         Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
-                        Ingredient.of(ModItems.NETHERITE_HAMMER),
+                        Ingredient.of(HGItems.NETHERITE_HAMMER),
                         Ingredient.of(Tags.Items.GLASS_BLOCKS),
-                        RecipeCategory.MISC, ModItems.GLASS_HAMMER.get()
+                        RecipeCategory.MISC, HGItems.GLASS_HAMMER.get()
                 )
                 .unlocks("has_glass_hammer", has(Tags.Items.GLASS_BLOCKS))
                 .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(HammersGalore.MOD_ID, "glass_hammer"));
         // 幽匿锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.SCULK_HAMMER.get())
+                        HGItems.SCULK_HAMMER.get())
                 .pattern("BBB")
                 .pattern("CAC")
                 .pattern("BBB")
-                .define('A', ModItems.IRON_HAMMER)
+                .define('A', HGItems.IRON_HAMMER)
                 .define('B', Items.SCULK)
                 .define('C', Items.EXPERIENCE_BOTTLE)
                 .unlockedBy("has_sculk_hammer", has(Items.SCULK))
                 .save(recipeOutput);
         // 绿宝石锤
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,
-                        ModItems.EMERALD_HAMMER.get())
+                        HGItems.EMERALD_HAMMER.get())
                 .pattern(" BA")
                 .pattern(" AB")
                 .pattern("A  ")

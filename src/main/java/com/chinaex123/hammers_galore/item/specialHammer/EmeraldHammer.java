@@ -1,6 +1,6 @@
 package com.chinaex123.hammers_galore.item.specialHammer;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
 import com.chinaex123.hammers_galore.item.HammerMiningHelper;
 import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
@@ -21,6 +21,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 绿宝石锤
+ * <p>
+ * 提供范围挖掘，并根据耐久损耗概率给予幸运效果（耐久越低效果越强）。
+ */
 public class EmeraldHammer extends PickaxeItems {
 
     private static final Random RANDOM = new Random();
@@ -45,7 +50,7 @@ public class EmeraldHammer extends PickaxeItems {
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否需要潜行（根据当前锤子的配置）
-        boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
+        boolean shouldMineArea = !HGServerConfig.EMERALD_HAMMER_REQUIRE_SNEAK.get() || entity.isCrouching();
 
         if (!level.isClientSide && shouldMineArea) {
             // 只在服务端且满足条件时触发范围挖掘
@@ -90,16 +95,16 @@ public class EmeraldHammer extends PickaxeItems {
         Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘半径
-        int radius = ServerConfig.getMiningRadius(tierName);
+        int radius = HammerMiningHelper.toRadius(HGServerConfig.EMERALD_HAMMER_MINING_RANGE.get());
 
         // 如果半径为 0，表示禁用范围挖掘
         if (radius <= 0) return;
 
         // 获取耐久消耗（根据当前锤子的配置）
-        int durabilityCost = ServerConfig.getDurabilityCost(tierName);
+        int durabilityCost = HGServerConfig.EMERALD_HAMMER_DURABILITY_COST.get();
 
         // 检查是否启用饱食度消耗
-        boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
+        boolean enableHungerCost = HGServerConfig.EMERALD_HAMMER_ENABLE_HUNGER_COST.get();
 
         // 计算挖掘区域的偏移量（使用工具类）
         List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);
@@ -167,7 +172,7 @@ public class EmeraldHammer extends PickaxeItems {
         float damageRatio = (float) stack.getDamageValue() / (float) stack.getMaxDamage();
 
         // 从配置获取触发概率基数
-        double baseTriggerChance = ServerConfig.getEmeraldHammerBaseTriggerChance();
+        double baseTriggerChance = HGServerConfig.EMERALD_HAMMER_BASE_TRIGGER_CHANCE.get();
 
         // 计算实际触发概率：基础概率 + 耐久度比例 * 额外概率
         // 耐久度越低（damageRatio 越大），触发概率越高
@@ -194,8 +199,6 @@ public class EmeraldHammer extends PickaxeItems {
         int duration = (int) (200 + damageRatio * 400);
 
         // 给予幸运效果
-        player.addEffect(new MobEffectInstance(
-                MobEffects.LUCK, duration, effectLevel - 1, false, true
-        ));
+        player.addEffect(new MobEffectInstance(MobEffects.LUCK, duration, effectLevel - 1, false, true));
     }
 }

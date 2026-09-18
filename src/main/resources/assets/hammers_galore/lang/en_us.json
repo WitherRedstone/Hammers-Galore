@@ -8,7 +8,6 @@
   "item.hammers_galore.gold_hammer": "Gold Hammer",
   "item.hammers_galore.diamond_hammer": "Diamond Hammer",
   "item.hammers_galore.netherite_hammer": "Netherite Hammer",
-
   "item.hammers_galore.nether_star_hammer": "Nether Star Hammer",
   "item.hammers_galore.heart_of_the_sea_hammer": "Heart of the Sea Hammer",
   "item.hammers_galore.conduit_hammer": "Conduit Hammer",
@@ -44,5 +43,6 @@
   "tooltip.hammers_galore.piston.knockback": "  Powerful Knockback: Knocks back entities %s blocks when attacking",
   "tooltip.hammers_galore.glass.low_durability": "  Low Durability & Extreme Damage: Only 1 durability point, use with caution!",
   "tooltip.hammers_galore.sculk.xp_drop": "  XP Absorption: %s XP per item, ores ×%d",
-  "tooltip.hammers_galore.emerald_hammer.chance": "  Chosen One: Lucky effect has a %s chance to trigger when digging or attacking."
+  "tooltip.hammers_galore.emerald_hammer.chance": "  Chosen One: Lucky effect has a %s chance to trigger when digging or attacking.",
+  "tooltip.hammers_galore.mining_level.unknown": "Level %s"
 }
