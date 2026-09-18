@@ -1,14 +1,16 @@
-package com.chinaex123.hammers_galore.tooltip;
+package com.chinaex123.hammers_galore.client.tooltip;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.init.ModToolMaterials;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
+import com.chinaex123.hammers_galore.init.HGToolMaterials;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import com.chinaex123.hammers_galore.item.HammerMiningHelper;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class HammerTooltip {
                 .withStyle(ChatFormatting.GOLD));
 
         // 显示挖掘范围
-        int miningRange = ServerConfig.getMiningRange(itemName);
+        int miningRange = getMiningRange(itemName);
         if (miningRange <= 1) {
             tooltip.add(Component.translatable("tooltip.hammers_galore.mining_range.disabled")
                     .withStyle(ChatFormatting.GRAY));
@@ -51,7 +53,7 @@ public class HammerTooltip {
         }
 
         // 显示是否需要潜行
-        boolean requireSneak = ServerConfig.requireSneak(itemName);
+        boolean requireSneak = requireSneak(itemName);
         if (requireSneak) {
             tooltip.add(Component.translatable("tooltip.hammers_galore.require_sneak.yes")
                     .withStyle(ChatFormatting.YELLOW));
@@ -61,12 +63,12 @@ public class HammerTooltip {
         }
 
         // 显示耐久消耗
-        int durabilityCost = ServerConfig.getDurabilityCost(itemName);
+        int durabilityCost = getDurabilityCost(itemName);
         tooltip.add(Component.translatable("tooltip.hammers_galore.durability_cost", durabilityCost)
                 .withStyle(ChatFormatting.BLUE));
 
         // 显示是否消耗饱食度
-        boolean enableHungerCost = ServerConfig.enableHungerCost(itemName);
+        boolean enableHungerCost = enableHungerCostConfig(itemName);
         if (enableHungerCost) {
             tooltip.add(Component.translatable("tooltip.hammers_galore.hunger_cost.yes")
                     .withStyle(ChatFormatting.RED));
@@ -82,10 +84,10 @@ public class HammerTooltip {
             tooltip.add(Component.translatable("tooltip.hammers_galore.specialhammers.bonus")
                     .withStyle(ChatFormatting.DARK_PURPLE));
 
-            double attackBonus = ServerConfig.getNetherStarAttackBonus();
-            double speedBonus = ServerConfig.getNetherStarSpeedBonus();
-            double thresholdLow = ServerConfig.getNetherStarThresholdLow();
-            double thresholdHigh = ServerConfig.getNetherStarThresholdHigh();
+            double attackBonus = HGServerConfig.NETHER_STAR_MAX_ATTACK_BONUS.get();
+            double speedBonus = HGServerConfig.NETHER_STAR_MAX_SPEED_BONUS.get();
+            double thresholdLow = HGServerConfig.NETHER_STAR_TRIGGER_THRESHOLD_LOW.get();
+            double thresholdHigh = HGServerConfig.NETHER_STAR_TRIGGER_THRESHOLD_HIGH.get();
 
             // 转换为剩余耐久百分比
             int startPercent = (int) (thresholdLow * 100);     // 30% 剩余
@@ -114,8 +116,8 @@ public class HammerTooltip {
             tooltip.add(Component.translatable("tooltip.hammers_galore.specialhammers.bonus")
                     .withStyle(ChatFormatting.DARK_PURPLE));
 
-            int duration = ServerConfig.getConduitEffectDuration();
-            int amplifier = ServerConfig.getConduitEffectAmplifier();
+            int duration = HGServerConfig.CONDUIT_EFFECT_DURATION.get();
+            int amplifier = HGServerConfig.CONDUIT_EFFECT_AMPLIFIER.get();
             double durationSeconds = duration / 20.0;
 
             tooltip.add(Component.translatable("tooltip.hammers_galore.conduit_hammer.water_power",
@@ -147,7 +149,7 @@ public class HammerTooltip {
             tooltip.add(Component.translatable("tooltip.hammers_galore.specialhammers.bonus")
                     .withStyle(ChatFormatting.DARK_PURPLE));
 
-            double knockback = ServerConfig.getPistonKnockbackStrength();
+            double knockback = HGServerConfig.PISTON_KNOCKBACK_STRENGTH.get();
             tooltip.add(Component.translatable("tooltip.hammers_galore.piston.knockback",
                             String.format("%.1f", knockback))
                     .withStyle(ChatFormatting.AQUA));
@@ -168,9 +170,9 @@ public class HammerTooltip {
             tooltip.add(Component.translatable("tooltip.hammers_galore.specialhammers.bonus")
                     .withStyle(ChatFormatting.DARK_PURPLE));
 
-            int minXp = ServerConfig.getSculkBaseXPMin();
-            int maxXp = ServerConfig.getSculkBaseXPMax();
-            int oreMultiplier = ServerConfig.getSculkOreXPMultiplier();
+            int minXp = HGServerConfig.SCULK_BASE_XP_MIN.get();
+            int maxXp = HGServerConfig.SCULK_BASE_XP_MAX.get();
+            double oreMultiplier = HGServerConfig.SCULK_ORE_XP_MULTIPLIER.get();
 
             String xpRange = (minXp == maxXp) ? String.valueOf(minXp) : minXp + "-" + maxXp;
 
@@ -185,7 +187,7 @@ public class HammerTooltip {
             tooltip.add(Component.translatable("tooltip.hammers_galore.specialhammers.bonus")
                     .withStyle(ChatFormatting.DARK_PURPLE));
 
-            double luckChance = ServerConfig.getEmeraldHammerBaseTriggerChance();
+            double luckChance = HGServerConfig.EMERALD_HAMMER_BASE_TRIGGER_CHANCE.get();
             String percentChance = String.format("%.1f%%", luckChance * 100);
 
             tooltip.add(Component.translatable("tooltip.hammers_galore.emerald_hammer.chance",
@@ -197,19 +199,21 @@ public class HammerTooltip {
     /**
      * 从 ItemStack 获取挖掘等级
      */
-    private static int getMiningLevel(ItemStack stack) {
-        String itemName = stack.getItem().getDescriptionId()
-                .replace("item.hammers_galore.", "");
+    private static ToolMaterial getMaterial(ItemStack stack) {
+        String itemName = stack.getItem().getDescriptionId().replace("item.hammers_galore.", "");
 
-        // 从 ModToolMaterials 获取对应的材质
-        var material = switch (itemName) {
-            case "wood_hammer" -> ModToolMaterials.WOOD_HAMMER;
-            case "stone_hammer" -> ModToolMaterials.STONE_HAMMER;
-            case "copper_hammer" -> ModToolMaterials.COPPER_HAMMER;
-            case "iron_hammer", "gold_hammer" -> ModToolMaterials.IRON_HAMMER;
-            case "diamond_hammer" -> ModToolMaterials.DIAMOND_HAMMER;
-            default -> ModToolMaterials.NETHERITE_HAMMER;
+        return switch (itemName) {
+            case "wood_hammer" -> HGToolMaterials.WOOD_HAMMER;
+            case "stone_hammer" -> HGToolMaterials.STONE_HAMMER;
+            case "copper_hammer" -> HGToolMaterials.COPPER_HAMMER;
+            case "iron_hammer", "gold_hammer" -> HGToolMaterials.IRON_HAMMER;
+            case "diamond_hammer" -> HGToolMaterials.DIAMOND_HAMMER;
+            default -> HGToolMaterials.NETHERITE_HAMMER;
         };
+    }
+
+    private static int getMiningLevel(ItemStack stack) {
+        var material = getMaterial(stack);
 
         // 通过检测方块标签来判断等级
         if (material.incorrectBlocksForDrops() == BlockTags.INCORRECT_FOR_WOODEN_TOOL) return 0;
@@ -239,7 +243,27 @@ public class HammerTooltip {
             return Component.translatable(translationKey);
         } else {
             // 如果等级不在预设范围内，显示数字
-            return Component.literal(level + "级");
+            return Component.translatable("tooltip.hammers_galore.mining_level.unknown", level);
         }
+    }
+
+    private static int getMiningRange(String itemName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(itemName);
+        return cfg.miningRange() != null ? cfg.miningRange().get() : 3;
+    }
+
+    private static boolean requireSneak(String itemName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(itemName);
+        return cfg.requireSneak() != null ? cfg.requireSneak().get() : true;
+    }
+
+    private static int getDurabilityCost(String itemName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(itemName);
+        return cfg.durabilityCost() != null ? cfg.durabilityCost().get() : 1;
+    }
+
+    private static boolean enableHungerCostConfig(String itemName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(itemName);
+        return cfg.enableHungerCost() != null ? cfg.enableHungerCost().get() : false;
     }
 }

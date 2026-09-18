@@ -1,19 +1,65 @@
 package com.chinaex123.hammers_galore.item;
 
+import com.chinaex123.hammers_galore.config.HGServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 锤子挖掘辅助工具类
  */
 public class HammerMiningHelper {
+
+    public record HammerCfg(
+            ModConfigSpec.IntValue miningRange,
+            ModConfigSpec.BooleanValue requireSneak,
+            ModConfigSpec.IntValue durabilityCost,
+            ModConfigSpec.BooleanValue enableHungerCost) {}
+
+    public static final Map<String, HammerCfg> HAMMER_CONFIGS = Map.ofEntries(
+            Map.entry("wood_hammer", new HammerCfg(HGServerConfig.WOOD_HAMMER_MINING_RANGE, HGServerConfig.WOOD_HAMMER_REQUIRE_SNEAK, HGServerConfig.WOOD_HAMMER_DURABILITY_COST, HGServerConfig.WOOD_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("stone_hammer", new HammerCfg(HGServerConfig.STONE_HAMMER_MINING_RANGE, HGServerConfig.STONE_HAMMER_REQUIRE_SNEAK, HGServerConfig.STONE_HAMMER_DURABILITY_COST, HGServerConfig.STONE_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("copper_hammer", new HammerCfg(HGServerConfig.COPPER_HAMMER_MINING_RANGE, HGServerConfig.COPPER_HAMMER_REQUIRE_SNEAK, HGServerConfig.COPPER_HAMMER_DURABILITY_COST, HGServerConfig.COPPER_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("iron_hammer", new HammerCfg(HGServerConfig.IRON_HAMMER_MINING_RANGE, HGServerConfig.IRON_HAMMER_REQUIRE_SNEAK, HGServerConfig.IRON_HAMMER_DURABILITY_COST, HGServerConfig.IRON_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("gold_hammer", new HammerCfg(HGServerConfig.GOLD_HAMMER_MINING_RANGE, HGServerConfig.GOLD_HAMMER_REQUIRE_SNEAK, HGServerConfig.GOLD_HAMMER_DURABILITY_COST, HGServerConfig.GOLD_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("diamond_hammer", new HammerCfg(HGServerConfig.DIAMOND_HAMMER_MINING_RANGE, HGServerConfig.DIAMOND_HAMMER_REQUIRE_SNEAK, HGServerConfig.DIAMOND_HAMMER_DURABILITY_COST, HGServerConfig.DIAMOND_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("netherite_hammer", new HammerCfg(HGServerConfig.NETHERITE_HAMMER_MINING_RANGE, HGServerConfig.NETHERITE_HAMMER_REQUIRE_SNEAK, HGServerConfig.NETHERITE_HAMMER_DURABILITY_COST, HGServerConfig.NETHERITE_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("nether_star_hammer", new HammerCfg(HGServerConfig.NETHER_STAR_HAMMER_MINING_RANGE, HGServerConfig.NETHER_STAR_HAMMER_REQUIRE_SNEAK, HGServerConfig.NETHER_STAR_HAMMER_DURABILITY_COST, HGServerConfig.NETHER_STAR_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("heart_of_the_sea_hammer", new HammerCfg(HGServerConfig.HEART_OF_THE_SEA_HAMMER_MINING_RANGE, HGServerConfig.HEART_OF_THE_SEA_HAMMER_REQUIRE_SNEAK, HGServerConfig.HEART_OF_THE_SEA_HAMMER_DURABILITY_COST, HGServerConfig.HEART_OF_THE_SEA_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("conduit_hammer", new HammerCfg(HGServerConfig.CONDUIT_HAMMER_MINING_RANGE, HGServerConfig.CONDUIT_HAMMER_REQUIRE_SNEAK, HGServerConfig.CONDUIT_HAMMER_DURABILITY_COST, HGServerConfig.CONDUIT_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("ender_pearl_hammer", new HammerCfg(HGServerConfig.ENDER_PEARL_HAMMER_MINING_RANGE, HGServerConfig.ENDER_PEARL_HAMMER_REQUIRE_SNEAK, HGServerConfig.ENDER_PEARL_HAMMER_DURABILITY_COST, HGServerConfig.ENDER_PEARL_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("magma_hammer", new HammerCfg(HGServerConfig.MAGMA_HAMMER_MINING_RANGE, HGServerConfig.MAGMA_HAMMER_REQUIRE_SNEAK, HGServerConfig.MAGMA_HAMMER_DURABILITY_COST, HGServerConfig.MAGMA_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("piston_hammer", new HammerCfg(HGServerConfig.PISTON_HAMMER_MINING_RANGE, HGServerConfig.PISTON_HAMMER_REQUIRE_SNEAK, HGServerConfig.PISTON_HAMMER_DURABILITY_COST, HGServerConfig.PISTON_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("glass_hammer", new HammerCfg(HGServerConfig.GLASS_HAMMER_MINING_RANGE, HGServerConfig.GLASS_HAMMER_REQUIRE_SNEAK, HGServerConfig.GLASS_HAMMER_DURABILITY_COST, HGServerConfig.GLASS_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("sculk_hammer", new HammerCfg(HGServerConfig.SCULK_HAMMER_MINING_RANGE, HGServerConfig.SCULK_HAMMER_REQUIRE_SNEAK, HGServerConfig.SCULK_HAMMER_DURABILITY_COST, HGServerConfig.SCULK_HAMMER_ENABLE_HUNGER_COST)),
+            Map.entry("emerald_hammer", new HammerCfg(HGServerConfig.EMERALD_HAMMER_MINING_RANGE, HGServerConfig.EMERALD_HAMMER_REQUIRE_SNEAK, HGServerConfig.EMERALD_HAMMER_DURABILITY_COST, HGServerConfig.EMERALD_HAMMER_ENABLE_HUNGER_COST))
+    );
+
+    public static HammerCfg getHammerCfg(String tierName) {
+        return HAMMER_CONFIGS.getOrDefault(tierName, new HammerCfg(null, null, null, null));
+    }
+
+    /**
+     * 将采矿范围转换为半径。
+     *
+     * <p>范围 ≤ 1 时返回 0，否则返回 (miningRange - 1) / 2。
+     *
+     * @param miningRange 采矿范围（通常为奇数直径）
+     * @return 对应的半径
+     */
+    public static int toRadius(int miningRange) {
+        return miningRange <= 1 ? 0 : (miningRange - 1) / 2;
+    }
+
 
     /**
      * 根据玩家视角和方块位置计算挖掘方向
@@ -24,25 +70,25 @@ public class HammerMiningHelper {
      */
     public static Direction getFacingFromBlock(BlockPos pos, LivingEntity entity) {
         // 优先使用玩家的视线方向（更准确）
-        if (entity instanceof net.minecraft.world.entity.player.Player player) {
+        if (entity instanceof Player player) {
             // 获取玩家的 pitch 角度（-90 到 90）
             float pitch = player.getXRot();
-            
+
             // 如果抬头或低头角度超过 45 度，认为是垂直挖掘
             if (pitch > 45) {
                 return Direction.DOWN; // 低头看地面
             } else if (pitch < -45) {
                 return Direction.UP; // 抬头看天空
             }
-            
+
             // 否则使用水平方向
             float yaw = player.getYRot();
-            
+
             // 将 yaw 转换为 -180 到 180 的范围
             yaw = yaw % 360;
             if (yaw > 180) yaw -= 360;
             if (yaw < -180) yaw += 360;
-            
+
             // 根据 yaw 角度判断水平方向
             if (yaw > -45 && yaw <= 45) {
                 return Direction.SOUTH; // 看向 Z+ 方向
@@ -54,7 +100,7 @@ public class HammerMiningHelper {
                 return Direction.EAST; // 看向 X+ 方向
             }
         }
-        
+
         // 如果不是玩家，回退到原来的方法
         double dx = pos.getX() + 0.5 - entity.getX();
         double dy = pos.getY() + 0.5 - entity.getY();
@@ -132,7 +178,7 @@ public class HammerMiningHelper {
      *         会跳过不可移动的方块（如基岩、命令方块）和末影人黑名单方块
      */
     public static boolean canHammerMine(BlockState state) {
-        // 检查方块的破坏速度，-1.0F 表示无法破坏（如基岩、命令方块等）
+        // 检查方块的破坏速度，-1.0F 表示无法破坏
         if (state.getDestroySpeed(null, BlockPos.ZERO) == -1.0F) {
             return false; // 无法破坏的方块
         }
