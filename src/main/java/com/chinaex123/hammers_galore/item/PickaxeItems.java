@@ -1,6 +1,5 @@
 package com.chinaex123.hammers_galore.item;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -35,8 +34,7 @@ public class PickaxeItems extends Item {
      */
     public static Properties createProperties(ToolMaterial material, float attackDamage, float attackSpeed) {
         // 使用 Item.Properties 的 pickaxe 方法设置属性
-        return new Properties()
-                .pickaxe(material, attackDamage, attackSpeed);
+        return new Properties().pickaxe(material, attackDamage, attackSpeed);
     }
 
     /**
@@ -56,7 +54,7 @@ public class PickaxeItems extends Item {
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否需要潜行（根据当前锤子的配置）
-        boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
+        boolean shouldMineArea = !requireSneak(tierName) || entity.isCrouching();
 
         // 只在服务端且满足条件时触发范围挖掘
         if (!level.isClientSide() && shouldMineArea) {
@@ -82,16 +80,16 @@ public class PickaxeItems extends Item {
         Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘范围 - 根据工具等级
-        int radius = ServerConfig.getMiningRadius(tierName);
+        int radius = getMiningRadius(tierName);
 
         // 如果半径为 0，表示禁用范围挖掘
         if (radius <= 0) return;
 
         // 获取耐久消耗（根据当前锤子的配置）
-        int durabilityCost = ServerConfig.getDurabilityCost(tierName);
+        int durabilityCost = getDurabilityCost(tierName);
 
         // 检查是否启用饱食度消耗
-        boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
+        boolean enableHungerCost = enableHungerCostConfig(tierName);
 
         // 计算挖掘区域的偏移量（使用工具类）
         List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);
@@ -160,5 +158,25 @@ public class PickaxeItems extends Item {
 
         // 检查方块是否在末影人黑名单中
         return !state.is(Tags.Blocks.ENDERMAN_PLACE_ON_BLACKLIST);
+    }
+
+    private static boolean requireSneak(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.requireSneak() != null ? cfg.requireSneak().get() : true;
+    }
+
+    private static int getMiningRadius(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.miningRange() != null ? HammerMiningHelper.toRadius(cfg.miningRange().get()) : 3;
+    }
+
+    private static int getDurabilityCost(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.durabilityCost() != null ? cfg.durabilityCost().get() : 1;
+    }
+
+    private static boolean enableHungerCostConfig(String tierName) {
+        HammerMiningHelper.HammerCfg cfg = HammerMiningHelper.getHammerCfg(tierName);
+        return cfg.enableHungerCost() != null ? cfg.enableHungerCost().get() : false;
     }
 }

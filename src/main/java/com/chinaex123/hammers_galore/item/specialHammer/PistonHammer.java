@@ -1,6 +1,7 @@
 package com.chinaex123.hammers_galore.item.specialHammer;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.HammersGalore;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
 import com.chinaex123.hammers_galore.item.HammerMiningHelper;
 import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
@@ -19,10 +20,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * 活塞锤
+ * <p>
+ * 提供范围挖掘，并在攻击时对目标施加强力击退。
+ */
 public class PistonHammer extends PickaxeItems {
 
-    private static final Identifier KNOCKBACK_MODIFIER_ID =
-            Identifier.fromNamespaceAndPath("hammers_galore", "piston_hammer_knockback");
+    private static final Identifier KNOCKBACK_MODIFIER_ID = HammersGalore.id("piston_hammer_knockback");
 
     public PistonHammer(Properties properties) {
         super(properties);
@@ -44,7 +49,7 @@ public class PistonHammer extends PickaxeItems {
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否应该进行范围挖掘：不需要潜行或者玩家正在潜行
-        boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
+        boolean shouldMineArea = !HGServerConfig.PISTON_HAMMER_REQUIRE_SNEAK.get() || entity.isCrouching();
 
         // 仅在服务端且满足条件时执行范围挖掘
         if (!level.isClientSide() && shouldMineArea) {
@@ -61,7 +66,6 @@ public class PistonHammer extends PickaxeItems {
      * @param stack 玩家手持的物品堆栈
      * @param target 被攻击的目标生物实体
      * @param attacker 发起攻击的生物实体
-     * @return 如果攻击成功返回 true，否则返回 false
      */
     @Override
     public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
@@ -80,7 +84,7 @@ public class PistonHammer extends PickaxeItems {
      */
     private void applyKnockback(LivingEntity target, LivingEntity attacker) {
         // 从配置获取击退强度
-        double knockbackStrength = ServerConfig.getPistonKnockbackStrength();
+        double knockbackStrength = HGServerConfig.PISTON_KNOCKBACK_STRENGTH.get();
 
         // 计算击退方向
         double dx = target.getX() - attacker.getX();
@@ -117,14 +121,14 @@ public class PistonHammer extends PickaxeItems {
         Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘半径
-        int radius = ServerConfig.getMiningRadius(tierName);
+        int radius = HammerMiningHelper.toRadius(HGServerConfig.PISTON_HAMMER_MINING_RANGE.get());
 
         // 如果半径为 0 或负数，表示禁用范围挖掘，直接返回
         if (radius <= 0) return;
 
         // 从配置获取耐久消耗和饱食度消耗设置
-        int durabilityCost = ServerConfig.getDurabilityCost(tierName);
-        boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
+        int durabilityCost = HGServerConfig.PISTON_HAMMER_DURABILITY_COST.get();
+        boolean enableHungerCost = HGServerConfig.PISTON_HAMMER_ENABLE_HUNGER_COST.get();
 
         // 计算挖掘区域内的所有方块位置（使用工具类）
         List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);

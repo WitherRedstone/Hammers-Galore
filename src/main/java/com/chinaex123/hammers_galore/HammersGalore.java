@@ -1,9 +1,10 @@
 package com.chinaex123.hammers_galore;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
-import com.chinaex123.hammers_galore.init.ModCreativeTabs;
-import com.chinaex123.hammers_galore.init.ModItems;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
+import com.chinaex123.hammers_galore.init.HGCreativeTabs;
+import com.chinaex123.hammers_galore.init.HGItems;
 import com.chinaex123.hammers_galore.item.HammerTickHandler;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
@@ -18,9 +19,13 @@ public class HammersGalore {
     public HammersGalore(IEventBus modEventBus, ModContainer modContainer) {
         NeoForge.EVENT_BUS.register(HammerTickHandler.class); // 注册锤子 Tick 事件监听
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, ServerConfig.getSpec());
+        modContainer.registerConfig(ModConfig.Type.COMMON, HGServerConfig.SPEC);
 
-        ModCreativeTabs.register(modEventBus); // 注册自定义创造模式物品栏
-        ModItems.register(modEventBus); // 注册物品
+        HGCreativeTabs.register(modEventBus);
+        HGItems.register(modEventBus);
+    }
+
+    public static Identifier id(String name) {
+        return Identifier.tryBuild(HammersGalore.MOD_ID, name);
     }
 }

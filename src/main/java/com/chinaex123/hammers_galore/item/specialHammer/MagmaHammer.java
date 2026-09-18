@@ -1,6 +1,6 @@
 package com.chinaex123.hammers_galore.item.specialHammer;
 
-import com.chinaex123.hammers_galore.config.ServerConfig;
+import com.chinaex123.hammers_galore.config.HGServerConfig;
 import com.chinaex123.hammers_galore.item.HammerMiningHelper;
 import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.core.BlockPos;
@@ -20,6 +20,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 岩浆锤
+ * <p>
+ * 提供范围挖掘，并将挖到的矿物自动烧炼后掉落。
+ */
 public class MagmaHammer extends PickaxeItems {
 
     public MagmaHammer(Properties properties) {
@@ -42,7 +47,7 @@ public class MagmaHammer extends PickaxeItems {
         String tierName = HammerMiningHelper.getTierNameFromStack(stack);
 
         // 检查是否应该进行范围挖掘：不需要潜行或者玩家正在潜行
-        boolean shouldMineArea = !ServerConfig.requireSneak(tierName) || entity.isCrouching();
+        boolean shouldMineArea = !HGServerConfig.MAGMA_HAMMER_REQUIRE_SNEAK.get() || entity.isCrouching();
 
         // 仅在服务端且满足条件时执行范围挖掘（包括中心方块）
         if (!level.isClientSide() && shouldMineArea) {
@@ -103,14 +108,14 @@ public class MagmaHammer extends PickaxeItems {
         Direction direction = HammerMiningHelper.getFacingFromBlock(centerPos, entity);
 
         // 从配置获取挖掘半径
-        int radius = ServerConfig.getMiningRadius(tierName);
+        int radius = HammerMiningHelper.toRadius(HGServerConfig.MAGMA_HAMMER_MINING_RANGE.get());
 
         // 如果半径为 0 或负数，表示禁用范围挖掘，直接返回
         if (radius <= 0) return;
 
         // 从配置获取耐久消耗和饱食度消耗设置
-        int durabilityCost = ServerConfig.getDurabilityCost(tierName);
-        boolean enableHungerCost = ServerConfig.enableHungerCost(tierName);
+        int durabilityCost = HGServerConfig.MAGMA_HAMMER_DURABILITY_COST.get();
+        boolean enableHungerCost = HGServerConfig.MAGMA_HAMMER_ENABLE_HUNGER_COST.get();
 
         // 计算挖掘区域内的所有方块位置（使用工具类）
         List<BlockPos> areaPositions = HammerMiningHelper.getAreaPositions(centerPos, direction, radius);

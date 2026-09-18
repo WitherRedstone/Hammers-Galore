@@ -44,5 +44,6 @@
   "tooltip.hammers_galore.piston.knockback": "  Powerful Knockback: Knocks back entities %s blocks when attacking",
   "tooltip.hammers_galore.glass.low_durability": "  Low Durability & Extreme Damage: Only 1 durability point, use with caution!",
   "tooltip.hammers_galore.sculk.xp_drop": "  XP Absorption: %s XP per item, ores ×%d",
-  "tooltip.hammers_galore.emerald_hammer.chance": "  Chosen One: Lucky effect has a %s chance to trigger when digging or attacking."
+  "tooltip.hammers_galore.emerald_hammer.chance": "  Chosen One: Lucky effect has a %s chance to trigger when digging or attacking.",
+  "tooltip.hammers_galore.mining_level.unknown": "Level %s"
 }
