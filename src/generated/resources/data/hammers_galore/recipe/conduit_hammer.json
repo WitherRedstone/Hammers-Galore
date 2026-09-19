@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": "hammers_galore:heart_of_the_sea_hammer",
+    "B": "#c:gems/amethyst",
+    "C": "minecraft:conduit"
+  },
+  "pattern": [
+    "BCB",
+    "CAC",
+    "BCB"
+  ],
+  "result": {
+    "id": "hammers_galore:conduit_hammer"
+  }
+}
