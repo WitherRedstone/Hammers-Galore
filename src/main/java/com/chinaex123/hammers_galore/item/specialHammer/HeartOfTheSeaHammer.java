@@ -16,6 +16,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,8 +33,8 @@ public class HeartOfTheSeaHammer extends PickaxeItems {
 
     private static final Identifier WATER_MINING_SPEED_ID = HammersGalore.id("heart_of_the_sea_water_speed");
 
-    public HeartOfTheSeaHammer(Properties properties) {
-        super(properties);
+    public HeartOfTheSeaHammer(ToolMaterial toolMaterial, Properties properties) {
+        super(toolMaterial, properties);
     }
 
     /**

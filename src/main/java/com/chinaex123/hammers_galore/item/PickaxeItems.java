@@ -20,8 +20,15 @@ import java.util.List;
 
 public class PickaxeItems extends Item {
 
-    public PickaxeItems(Properties properties) {
+    private final ToolMaterial toolMaterial;
+
+    public PickaxeItems(ToolMaterial toolMaterial, Properties properties) {
         super(properties);
+        this.toolMaterial = toolMaterial;
+    }
+
+    public ToolMaterial getToolMaterial() {
+        return toolMaterial;
     }
 
     /**

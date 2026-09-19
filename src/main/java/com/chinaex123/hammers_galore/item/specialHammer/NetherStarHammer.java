@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +25,8 @@ public class NetherStarHammer extends PickaxeItems {
     private static final Identifier ATTACK_MODIFIER_ID = HammersGalore.id("nether_star_hammer_attack_bonus");
     private static final Identifier SPEED_MODIFIER_ID = HammersGalore.id("nether_star_hammer_speed_bonus");
 
-    public NetherStarHammer(Properties properties) {
-        super(properties);
+    public NetherStarHammer(ToolMaterial toolMaterial, Properties properties) {
+        super(toolMaterial, properties);
     }
 
     /**
