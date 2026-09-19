@@ -23,7 +23,7 @@ public class HGToolMaterials {
             BlockTags.INCORRECT_FOR_GOLD_TOOL, 256, 12F, 3.0F, 30, HGItemTags.GOLD_HAMMER_TOOL_MATERIALS);
     /** 钻石锤 */
     public static final ToolMaterial DIAMOND_HAMMER = new ToolMaterial(
-            BlockTags.INCORRECT_FOR_WOODEN_TOOL, 2048, 8F, 6.0F, 18, HGItemTags.DIAMOND_HAMMER_TOOL_MATERIALS);
+            BlockTags.INCORRECT_FOR_DIAMOND_TOOL, 2048, 8F, 6.0F, 18, HGItemTags.DIAMOND_HAMMER_TOOL_MATERIALS);
     /** 下界合金锤 */
     public static final ToolMaterial NETHERITE_HAMMER = new ToolMaterial(
             BlockTags.INCORRECT_FOR_NETHERITE_TOOL, 4096, 10F, 7.0F, 25, HGItemTags.NETHERITE_HAMMER_TOOL_MATERIALS);

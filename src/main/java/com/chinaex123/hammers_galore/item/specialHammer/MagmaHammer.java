@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -27,8 +28,8 @@ import java.util.Optional;
  */
 public class MagmaHammer extends PickaxeItems {
 
-    public MagmaHammer(Properties properties) {
-        super(properties);
+    public MagmaHammer(ToolMaterial toolMaterial, Properties properties) {
+        super(toolMaterial, properties);
     }
 
     /**

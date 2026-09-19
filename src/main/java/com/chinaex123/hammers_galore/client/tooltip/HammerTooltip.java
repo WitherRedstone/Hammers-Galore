@@ -1,12 +1,12 @@
 package com.chinaex123.hammers_galore.client.tooltip;
 
 import com.chinaex123.hammers_galore.config.HGServerConfig;
-import com.chinaex123.hammers_galore.init.HGToolMaterials;
+import com.chinaex123.hammers_galore.item.PickaxeItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ToolMaterial;
+
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -199,21 +199,9 @@ public class HammerTooltip {
     /**
      * 从 ItemStack 获取挖掘等级
      */
-    private static ToolMaterial getMaterial(ItemStack stack) {
-        String itemName = stack.getItem().getDescriptionId().replace("item.hammers_galore.", "");
-
-        return switch (itemName) {
-            case "wood_hammer" -> HGToolMaterials.WOOD_HAMMER;
-            case "stone_hammer" -> HGToolMaterials.STONE_HAMMER;
-            case "copper_hammer" -> HGToolMaterials.COPPER_HAMMER;
-            case "iron_hammer", "gold_hammer" -> HGToolMaterials.IRON_HAMMER;
-            case "diamond_hammer" -> HGToolMaterials.DIAMOND_HAMMER;
-            default -> HGToolMaterials.NETHERITE_HAMMER;
-        };
-    }
-
     private static int getMiningLevel(ItemStack stack) {
-        var material = getMaterial(stack);
+        if (!(stack.getItem() instanceof PickaxeItems hammer)) return 0;
+        var material = hammer.getToolMaterial();
 
         // 通过检测方块标签来判断等级
         if (material.incorrectBlocksForDrops() == BlockTags.INCORRECT_FOR_WOODEN_TOOL) return 0;
@@ -221,6 +209,7 @@ public class HammerTooltip {
         if (material.incorrectBlocksForDrops() == BlockTags.INCORRECT_FOR_IRON_TOOL) return 2;
         if (material.incorrectBlocksForDrops() == BlockTags.INCORRECT_FOR_DIAMOND_TOOL) return 3;
         if (material.incorrectBlocksForDrops() == BlockTags.INCORRECT_FOR_NETHERITE_TOOL) return 4;
+        if (material.incorrectBlocksForDrops() == BlockTags.INCORRECT_FOR_GOLD_TOOL) return 2;
 
         // 默认返回 0
         return 0;
